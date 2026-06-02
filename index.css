@@ -32,6 +32,18 @@ body {
     overflow-x: hidden;
 }
 
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 /* ── Polka-dot background utility ───────────────────── */
 .polka {
     background-image: radial-gradient(var(--yellow) 2px, transparent 2px);
@@ -95,7 +107,7 @@ section {
 
 h2 {
     font-family: var(--font-h);
-    font-size: clamp(2rem, 5vw, 3rem);
+    font-size: 3rem;
     line-height: 1.1;
     color: var(--navy);
     margin-bottom: 1.25rem;
@@ -154,7 +166,7 @@ h2 {
 
 .hero-text h1 {
     font-family: var(--font-h);
-    font-size: clamp(2.8rem, 7vw, 5rem);
+    font-size: 4.8rem;
     color: var(--white);
     line-height: 1.05;
     margin-bottom: 1.25rem;
@@ -210,6 +222,11 @@ h2 {
     margin-left: 1rem;
 }
 
+.btn-light {
+    background: var(--white);
+    color: var(--navy);
+}
+
 /* ── Hero Photo ─────────────────────────────────────── */
 .hero-photo {
     width: 100%;
@@ -230,10 +247,65 @@ h2 {
     overflow: hidden;
 }
 
+.hero-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+}
+
 .hero-photo span {
     font-family: var(--font-h);
     font-size: 1rem;
     letter-spacing: 0.1em;
+}
+
+/* ── Services ───────────────────────────────────────── */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+
+.card {
+    border: 3px solid var(--navy);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    background: var(--white);
+    padding: 1.35rem;
+    transition:
+        transform 0.15s,
+        box-shadow 0.15s;
+}
+
+.card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--navy);
+}
+
+.card-icon {
+    width: 3.1rem;
+    height: 3.1rem;
+    display: grid;
+    place-items: center;
+    margin-bottom: 1rem;
+    border: 3px solid var(--navy);
+    border-radius: 999px;
+    background: var(--yellow);
+    font-size: 1.55rem;
+}
+
+.card h3 {
+    font-family: var(--font-h);
+    font-size: 1.65rem;
+    line-height: 1.1;
+    margin-bottom: 0.7rem;
+}
+
+.card p {
+    color: rgba(26, 34, 64, 0.76);
+    line-height: 1.65;
 }
 
 /* ── Scheduling / Availability ─────────────────────── */
@@ -287,6 +359,18 @@ h2 {
     line-height: 1.6;
 }
 
+.availability-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.9rem;
+    margin-top: 0.4rem;
+}
+
+.availability-actions .btn {
+    margin: 0;
+}
+
 /* ── Booking / Contact ─────────────────────────────── */
 .booking-grid {
     display: grid;
@@ -336,6 +420,21 @@ h2 {
     text-underline-offset: 0.18em;
 }
 
+.party-checklist {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem;
+    margin-top: 1.8rem;
+}
+
+.party-checklist span {
+    border: 2px solid rgba(26, 34, 64, 0.18);
+    border-radius: 8px;
+    background: rgba(249, 200, 70, 0.22);
+    padding: 0.65rem 0.75rem;
+    font-weight: 700;
+}
+
 .booking-form {
     display: grid;
     gap: 1.1rem;
@@ -371,6 +470,18 @@ h2 {
     padding: 0.7rem 0.8rem;
 }
 
+.booking-form .visually-hidden {
+    position: absolute;
+    width: 1px;
+    min-height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 .booking-form input:focus,
 .booking-form select:focus,
 .booking-form textarea:focus {
@@ -402,6 +513,64 @@ h2 {
 .form-submit:hover {
     transform: translate(-2px, -2px);
     box-shadow: 6px 6px 0 var(--navy);
+}
+
+.form-note {
+    color: rgba(26, 34, 64, 0.62);
+    font-size: 0.92rem;
+}
+
+/* ── Testimonials ───────────────────────────────────── */
+#testimonials {
+    padding: 5rem 2rem;
+    background: var(--navy);
+    color: var(--white);
+}
+
+#testimonials .inner {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+#testimonials h2 {
+    color: var(--white);
+}
+
+#testimonials .divider {
+    background: var(--yellow);
+}
+
+.testimonial-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+
+.testimonial {
+    border: 3px solid var(--yellow);
+    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.08);
+    padding: 1.35rem;
+    box-shadow: 4px 4px 0 rgba(249, 200, 70, 0.9);
+}
+
+.stars {
+    color: var(--yellow);
+    letter-spacing: 0.08em;
+    margin-bottom: 0.9rem;
+}
+
+.testimonial blockquote {
+    color: rgba(255, 255, 255, 0.84);
+    line-height: 1.65;
+}
+
+.testimonial cite {
+    display: block;
+    margin-top: 1rem;
+    color: var(--teal);
+    font-style: normal;
+    font-weight: 700;
 }
 
 /* ── Gallery ────────────────────────────────────────── */
@@ -470,21 +639,103 @@ footer a:hover {
 }
 
 /* ── Responsive ─────────────────────────────────────── */
-@media (max-width: 700px) {
+@media (max-width: 920px) {
     .hero-inner {
         grid-template-columns: 1fr;
+    }
+
+    .hero-text {
+        max-width: 620px;
+    }
+
+    .cards,
+    .testimonial-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .booking-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    nav {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.65rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .nav-links {
+        width: 100%;
+        gap: 0.5rem;
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+        scrollbar-width: none;
+    }
+
+    .nav-links::-webkit-scrollbar {
+        display: none;
+    }
+
+    .nav-links a {
+        display: block;
+        white-space: nowrap;
+        padding: 0.35rem 0.55rem;
+    }
+
+    section,
+    #scheduling,
+    #testimonials {
+        padding: 3.5rem 1rem;
+    }
+
+    h2 {
+        font-size: 2.35rem;
+    }
+
+    #hero {
+        min-height: auto;
+    }
+
+    .hero-inner {
+        padding: 3rem 1rem;
         text-align: center;
+    }
+
+    .hero-text h1 {
+        font-size: 3.2rem;
     }
 
     .hero-text p {
         margin: 0 auto 2rem;
     }
 
+    .btn {
+        width: 100%;
+        max-width: 280px;
+        text-align: center;
+    }
+
+    .btn-outline {
+        margin-top: 0.9rem;
+        margin-left: 0;
+    }
+
     .hero-photo {
         max-width: 260px;
     }
 
+    .cards,
+    .testimonial-grid {
+        grid-template-columns: 1fr;
+    }
+
     .booking-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .party-checklist {
         grid-template-columns: 1fr;
     }
 
@@ -495,8 +746,24 @@ footer a:hover {
     .booking-form {
         padding: 1rem;
     }
+}
 
-    .nav-links {
-        display: none;
+@media (max-width: 430px) {
+    .hero-text h1 {
+        font-size: 2.7rem;
+    }
+
+    .hero-text .eyebrow,
+    .section-label {
+        font-size: 0.78rem;
+    }
+
+    .calendar-wrap {
+        min-height: 300px;
+        padding: 1.25rem;
+    }
+
+    .gallery-grid {
+        grid-template-columns: 1fr;
     }
 }

@@ -3,7 +3,20 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+            name="description"
+            content="Book Frannie the Clown for birthday parties, school shows, corporate events, balloon artistry, and face painting in San Diego, CA."
+        />
+        <meta property="og:title" content="Frannie the Clown" />
+        <meta
+            property="og:description"
+            content="Joyful clown entertainment for parties and events in San Diego, CA."
+        />
+        <meta property="og:image" content="assets/frannie-veteran.jpg" />
+        <meta property="og:type" content="website" />
+        <meta name="theme-color" content="#1a2240" />
         <title>Frannie the Clown — Joy for Hire</title>
+        <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -42,14 +55,16 @@
                     <p>
                         Birthday parties, corporate events, school shows &amp;
                         more — bringing smiles and unforgettable memories to
-                            San Diego, CA and beyond.
+                        San Diego, CA and beyond.
                     </p>
                     <a href="#booking" class="btn btn-primary">Book Frannie</a>
                     <a href="#services" class="btn btn-outline">See Services</a>
                 </div>
                 <div class="hero-photo">
-                    🤡
-                    <span>Photo Coming Soon</span>
+                    <img
+                        src="assets/frannie.jpeg"
+                        alt="Frannie the Clown smiling in costume"
+                    />
                 </div>
             </div>
         </div>
@@ -128,30 +143,27 @@
                 <h2>Check Availability</h2>
                 <div class="divider"></div>
                 <p>
-                    Use the calendar below to see which dates are open. Bookings
-                    fill up fast on weekends — grab your date early!
+                    Weekend party times can fill up quickly. Send your event
+                    date and details, and Frannie will confirm availability
+                    within 24 hours.
                 </p>
 
-                <!-- Replace src with your actual Google Calendar embed URL -->
                 <div class="calendar-wrap">
                     <div class="cal-icon">📅</div>
-                    <div>Google Calendar Embed Goes Here</div>
+                    <div>Ready to check your date?</div>
                     <p class="cal-note">
-                        Replace this placeholder with an &lt;iframe&gt; from
-                        Google Calendar → Share → Embed
+                        Use the booking form below, call, or email with your
+                        preferred date, time, location, and party size.
                     </p>
+                    <div class="availability-actions">
+                        <a class="btn btn-primary" href="#booking"
+                            >Request a Date</a
+                        >
+                        <a class="btn btn-light" href="tel:+16199337737"
+                            >Call Frannie</a
+                        >
+                    </div>
                 </div>
-
-                <!--
-        EXAMPLE EMBED — uncomment and replace with your calendar's embed URL:
-
-        <iframe
-          src="https://calendar.google.com/calendar/embed?src=YOUR_CALENDAR_ID&ctz=America%2FLos_Angeles"
-          style="border:0; width:100%; min-height:480px; border-radius:14px;"
-          frameborder="0"
-          scrolling="no">
-        </iframe>
-      -->
             </div>
         </div>
 
@@ -198,19 +210,35 @@
                             >Frannie the Clown on Facebook</a
                         >
                     </div>
+
+                    <div class="party-checklist" aria-label="Helpful booking details">
+                        <span>Date</span>
+                        <span>Location</span>
+                        <span>Guest count</span>
+                        <span>Theme</span>
+                    </div>
                 </div>
 
-                <!--
-        Formspree setup:
-        1. Sign up at formspree.io
-        2. Create a form, copy your endpoint
-        3. Replace action URL below
-      -->
                 <form
                     class="booking-form"
-                    action="https://formspree.io/f/YOUR_FORM_ID"
+                    action="https://formspree.io/f/mykvrjdw"
                     method="POST"
                 >
+                    <input
+                        type="hidden"
+                        name="_subject"
+                        value="New Frannie the Clown booking request"
+                    />
+                    <label class="visually-hidden" for="website">Website</label>
+                    <input
+                        class="visually-hidden"
+                        type="text"
+                        id="website"
+                        name="_gotcha"
+                        tabindex="-1"
+                        autocomplete="off"
+                    />
+
                     <div class="form-row">
                         <div>
                             <label for="name">Your Name</label>
@@ -241,7 +269,7 @@
                                 type="tel"
                                 id="phone"
                                 name="phone"
-                                placeholder="(760) 555-0000"
+                                placeholder="(619) 555-0000"
                             />
                         </div>
                         <div>
@@ -285,6 +313,9 @@
                     <button type="submit" class="form-submit">
                         🎉 Send Booking Request
                     </button>
+                    <p class="form-note">
+                        Frannie usually replies within 24 hours.
+                    </p>
                 </form>
             </div>
         </section>
@@ -347,6 +378,12 @@
                     class="gallery-item"
                     src="assets/brianandfrannie.jpg"
                     alt="Frannie heads out"
+                />
+
+                <img
+                    class="gallery-item"
+                    src="assets/frannie-day.jpg"
+                    alt="Frannie the Clown at an event"
                 />
             </div>
         </section>
