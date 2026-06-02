@@ -236,6 +236,174 @@ h2 {
     letter-spacing: 0.1em;
 }
 
+/* ── Scheduling / Availability ─────────────────────── */
+#scheduling {
+    padding: 5rem 2rem;
+    border-top: 2px dashed rgba(26, 34, 64, 0.12);
+    border-bottom: 2px dashed rgba(26, 34, 64, 0.12);
+    background: rgba(255, 255, 255, 0.45);
+}
+
+#scheduling .inner {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+#scheduling .inner > p:not(.section-label) {
+    max-width: 780px;
+    font-size: 1.08rem;
+    line-height: 1.7;
+    margin-bottom: 1.75rem;
+}
+
+.calendar-wrap {
+    min-height: 360px;
+    border: 3px solid var(--navy);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    background: var(--white);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    padding: 2rem;
+    text-align: center;
+}
+
+.cal-icon {
+    font-size: 3rem;
+    line-height: 1;
+}
+
+.calendar-wrap > div:not(.cal-icon) {
+    font-family: var(--font-h);
+    font-size: 1.8rem;
+}
+
+.cal-note {
+    max-width: 520px;
+    color: rgba(26, 34, 64, 0.68);
+    line-height: 1.6;
+}
+
+/* ── Booking / Contact ─────────────────────────────── */
+.booking-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: 2rem;
+    align-items: start;
+}
+
+.booking-info {
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.booking-info > p {
+    font-size: 1.08rem;
+    margin-bottom: 1.4rem;
+}
+
+.contact-detail {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    margin-top: 0.85rem;
+}
+
+.contact-detail .icon {
+    width: 1.35rem;
+    flex: 0 0 1.35rem;
+    line-height: 1.5;
+}
+
+.contact-detail .icon svg {
+    display: block;
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.contact-detail .facebook-icon {
+    color: #1877f2;
+    padding-top: 0.12rem;
+}
+
+.contact-detail a {
+    color: var(--navy);
+    font-weight: 700;
+    text-decoration-color: var(--teal);
+    text-underline-offset: 0.18em;
+}
+
+.booking-form {
+    display: grid;
+    gap: 1.1rem;
+    padding: 1.5rem;
+    border: 3px solid var(--navy);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    background: var(--white);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.booking-form label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 700;
+}
+
+.booking-form input,
+.booking-form select,
+.booking-form textarea {
+    width: 100%;
+    min-height: 46px;
+    border: 2px solid rgba(26, 34, 64, 0.35);
+    border-radius: 8px;
+    background: #fffdf9;
+    color: var(--navy);
+    font: inherit;
+    padding: 0.7rem 0.8rem;
+}
+
+.booking-form input:focus,
+.booking-form select:focus,
+.booking-form textarea:focus {
+    outline: 3px solid rgba(43, 191, 164, 0.28);
+    border-color: var(--teal);
+}
+
+.booking-form textarea {
+    min-height: 130px;
+    resize: vertical;
+}
+
+.form-submit {
+    justify-self: start;
+    font-family: var(--font-h);
+    font-size: 1.1rem;
+    padding: 0.8rem 1.3rem;
+    border: 3px solid var(--navy);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    background: var(--yellow);
+    color: var(--navy);
+    cursor: pointer;
+    transition:
+        transform 0.15s,
+        box-shadow 0.15s;
+}
+
+.form-submit:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--navy);
+}
+
 /* ── Gallery ────────────────────────────────────────── */
 #gallery {
     border-top: 2px dashed rgba(26, 34, 64, 0.12);
@@ -322,6 +490,10 @@ footer a:hover {
 
     .form-row {
         grid-template-columns: 1fr;
+    }
+
+    .booking-form {
+        padding: 1rem;
     }
 
     .nav-links {
