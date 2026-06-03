@@ -44,7 +44,7 @@ booking form is one column on mobile, and gallery images remain square.
 ## Automatic booking sync
 
 The file `google-calendar-booking.gs` is a Google Apps Script webhook for the
-Formspree booking form. It checks Frannie's booking calendar for conflicts,
+Formspark booking form. It checks Frannie's booking calendar for conflicts,
 creates a yellow pending calendar event when the slot is open, and emails both
 Frannie and the customer.
 
@@ -84,12 +84,48 @@ Setup:
 5. Set "Execute as" to yourself.
 6. Set access to "Anyone".
 7. Copy the Web App `/exec` URL.
-8. In Formspree, add a Simple Webhook for the booking form and use the Apps
-   Script `/exec` URL as the webhook target.
+8. In Formspark, open the "Frannie the Clown Bookings" form settings.
+9. Set the Webhook URL to the Apps Script `/exec` URL.
+10. Set Custom honeypot to `website`.
 
-Leave the `index.html` form action pointed at Formspree. Formspree keeps the
-booking inbox, then forwards each submission to Apps Script so it can create the
-calendar hold.
+Current Apps Script Web App URL:
+
+```text
+https://script.google.com/macros/s/AKfycbxy0Ckw1fTnm0P7Y3r5s_ruJWPyeollNYsEn1x8IiDLdGn6IBWwFyvmF6I438qiZg5cfg/exec
+```
+
+Leave the `index.html` form action pointed at Formspark:
+
+```text
+https://submit-form.com/FC0o0dT9e
+```
+
+Formspark keeps the booking inbox, then forwards each submission to Apps Script
+so it can create the calendar hold.
+
+Optional webhook secret:
+
+1. Set `WEBHOOK_SECRET` in `google-calendar-booking.gs` to a private string.
+2. Add it to the Formspark Webhook URL as a query parameter:
+
+```text
+https://script.google.com/macros/s/deployment-id/exec?booking_key=private-secret
+```
 
 After setup, submit the same date and time twice. The first request should
 create a pending event; the second request should be rejected as already booked.
+
+Troubleshooting:
+
+- Open the Apps Script `/exec` URL in a private browser window. It should say
+  the booking webhook is live.
+- In the Apps Script editor, run `testCalendarWrite`. If it fails, the deployed
+  script owner does not have write permission to the booking calendar, or the
+  calendar ID is wrong. Public sharing lets visitors view the calendar, but it
+  does not grant Apps Script write access.
+- If `testCalendarWrite` succeeds but form submissions do not create events,
+  Formspark is not forwarding submissions to Apps Script. Confirm the Webhook
+  URL points at the current Apps Script `/exec` URL.
+- After editing `google-calendar-booking.gs`, create a new Apps Script
+  deployment version or update the existing deployment. Saving the file alone
+  does not update the live `/exec` URL.

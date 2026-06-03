@@ -12,11 +12,69 @@ const BLOCKING_CALENDAR_IDS = [
 
 const NOTIFY_EMAIL = "frannietheclown1@gmail.com";
 const TIME_ZONE = "America/Los_Angeles";
+const WEBHOOK_SECRET = "";
+
+function doGet() {
+  return renderResult(
+    "Booking webhook is live",
+    "This Google Apps Script deployment is reachable. Submit the booking form or run testCalendarWrite from the Apps Script editor to verify calendar writes."
+  );
+}
 
 function doPost(e) {
+  try {
+    return handleBookingPost(e);
+  } catch (error) {
+    MailApp.sendEmail({
+      to: NOTIFY_EMAIL,
+      subject: "Booking calendar webhook error",
+      body: error && error.stack ? error.stack : String(error),
+    });
+
+    return renderResult(
+      "Booking error",
+      "The booking request was received, but the calendar hold could not be created. Frannie has been notified."
+    );
+  }
+}
+
+function testCalendarWrite() {
+  const start = new Date();
+  start.setDate(start.getDate() + 1);
+  start.setHours(9, 0, 0, 0);
+
+  const end = new Date(start.getTime() + 15 * 60 * 1000);
+  const calendar = CalendarApp.getCalendarById(BOOKING_CALENDAR_ID);
+
+  if (!calendar) {
+    throw new Error("Calendar not found: " + BOOKING_CALENDAR_ID);
+  }
+
+  const event = calendar.createEvent(
+    "TEST: Website booking calendar write",
+    start,
+    end,
+    {
+      description:
+        "Delete this event after confirming the website booking calendar can be written by Apps Script.",
+    }
+  );
+  event.setColor(CalendarApp.EventColor.YELLOW);
+
+  return event.getId();
+}
+
+function handleBookingPost(e) {
+  if (!isAuthorizedWebhook(e)) {
+    return renderResult(
+      "Unauthorized",
+      "This booking webhook could not be verified."
+    );
+  }
+
   const params = extractSubmission(e);
 
-  if (params._gotcha) {
+  if (isSpamSubmission(params)) {
     return renderResult("Thanks!", "Your request has been received.");
   }
 
@@ -87,11 +145,20 @@ function doPost(e) {
   );
 }
 
+function isAuthorizedWebhook(e) {
+  if (!WEBHOOK_SECRET) {
+    return true;
+  }
+
+  const params = e && e.parameter ? e.parameter : {};
+  return params.booking_key === WEBHOOK_SECRET;
+}
+
 function extractSubmission(e) {
   const params = Object.assign({}, e && e.parameter ? e.parameter : {});
   const payload = parseJsonPostData(e);
 
-  // Formspree Simple Webhooks send form fields under payload.submission.
+  // Some webhook providers wrap form fields under payload.submission.
   if (
     payload &&
     payload.submission &&
@@ -105,6 +172,10 @@ function extractSubmission(e) {
   }
 
   return params;
+}
+
+function isSpamSubmission(params) {
+  return Boolean(params._gotcha || params.website);
 }
 
 function parseJsonPostData(e) {
