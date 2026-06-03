@@ -97,7 +97,7 @@ https://script.google.com/macros/s/AKfycbxy0Ckw1fTnm0P7Y3r5s_ruJWPyeollNYsEn1x8I
 Leave the `index.html` form action pointed at Formspark:
 
 ```text
-https://submit-form.com/FC0o0dT9e
+https://submit-form.com/A0GcLLdM2
 ```
 
 Formspark keeps the booking inbox, then forwards each submission to Apps Script
