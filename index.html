@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta
             name="description"
-            content="Book Frannie the Clown for birthday parties, school shows, corporate events, balloon artistry, and face painting in San Diego, CA."
+            content="Book Frannie the Clown for birthday parties, school shows, team events, balloon artistry, and face painting in San Diego, CA."
         />
         <meta property="og:title" content="Frannie the Clown" />
         <meta
@@ -15,7 +15,7 @@
         <meta property="og:image" content="assets/frannie-veteran.jpg" />
         <meta property="og:type" content="website" />
         <meta name="theme-color" content="#1a2240" />
-        <title>Frannie the Clown — Joy for Hire</title>
+        <title>Frannie the Clown - Joy for Hire</title>
         <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -26,12 +26,12 @@
             rel="stylesheet"
         />
 
-        <link rel="stylesheet" href="index.css?v=20260603" />
+        <link rel="stylesheet" href="index.css?v=20260603-3" />
     </head>
     <body>
         <!-- ── Nav ──────────────────────────────────────────── -->
         <nav>
-            <a href="#hero" class="nav-logo">🤡 Frannie</a>
+            <a href="#hero" class="nav-logo">Frannie the Clown</a>
             <ul class="nav-links">
                 <li><a href="#services">Services</a></li>
                 <li><a href="#scheduling">Availability</a></li>
@@ -50,11 +50,11 @@
                         ✨ Professional Clown &amp; Entertainer
                     </p>
                     <h1>
-                        Hi, I'm <span>Frannie!</span><br />Let's Make Magic.
+                        Hi, I'm <span>Frannie!</span><br /> Let's Have Fun!
                     </h1>
                     <p>
-                        Birthday parties, corporate events, school shows &amp;
-                        more — bringing smiles and unforgettable memories to
+                        Birthday parties, team events, school shows &amp;
+                        more! Bringing smiles and wonderful memories all around
                         San Diego, CA and beyond.
                     </p>
                     <a href="#booking" class="btn btn-primary">Book Frannie</a>
@@ -86,12 +86,11 @@
                 </div>
 
                 <div class="card">
-                    <div class="card-icon">🏢</div>
-                    <h3>Corporate Events</h3>
+                    <div class="card-icon">🤹🏼‍♀️</div>
+                    <h3>Team & Suprise Events</h3>
                     <p>
-                        Family-friendly entertainment for company picnics,
-                        holiday parties, and team celebrations. Custom branding
-                        available.
+                        Family-friendly entertainment for team celebrations,
+                        suprise parties, and holiday get-togethers!
                     </p>
                 </div>
 
@@ -108,7 +107,7 @@
                     <div class="card-icon">🎈</div>
                     <h3>Balloon Artistry</h3>
                     <p>
-                        Roaming balloon sculpting — perfect for fairs,
+                        Roaming balloon sculpting: perfect for fairs,
                         festivals, and any event where the kids (and adults!)
                         need something to take home.
                     </p>
@@ -119,7 +118,7 @@
                     <h3>Face Painting</h3>
                     <p>
                         Professional-grade, skin-safe paints. From butterflies
-                        to superheroes — designs that delight and photograph
+                        to superheroes, designs that delight and photograph
                         beautifully.
                     </p>
                 </div>
@@ -152,20 +151,21 @@
                     <iframe
                         class="calendar-desktop"
                         title="Frannie the Clown availability calendar"
-                        src="https://calendar.google.com/calendar/embed?src=2f3d268e5a59bb163f7f79bfdf4a8c8d54d4305cc8c8a28295bcd7906baae8fd%40group.calendar.google.com&ctz=America%2FLos_Angeles&mode=MONTH"
+                        data-calendar-embed
+                        data-calendar-mode="MONTH"
                         loading="lazy"
                     ></iframe>
                     <iframe
                         class="calendar-mobile"
                         title="Frannie the Clown availability calendar agenda"
-                        src="https://calendar.google.com/calendar/embed?src=2f3d268e5a59bb163f7f79bfdf4a8c8d54d4305cc8c8a28295bcd7906baae8fd%40group.calendar.google.com&ctz=America%2FLos_Angeles&mode=AGENDA"
+                        data-calendar-embed
+                        data-calendar-mode="AGENDA"
                         loading="lazy"
                     ></iframe>
                 </div>
                 <p class="calendar-note">
-                    If the calendar does not load, request your date below or
-                    call Frannie. Google Calendar must be shared publicly for
-                    embedded availability to appear here.
+                    If the calendar does not show your booking, request your date below or
+                    call Frannie.
                 </p>
 
                 <div class="availability-footer">
@@ -177,19 +177,25 @@
                         <a class="btn btn-primary" href="#booking"
                             >Request a Date</a
                         >
-                        <a class="btn btn-light" href="tel:+16199337737"
+                        <a
+                            class="btn btn-light"
+                            href="#booking"
+                            data-phone-link
+                            data-phone-format="button"
                             >Call Frannie</a
                         >
                         <a
                             class="btn btn-light"
-                            href="https://calendar.google.com/calendar/embed?src=2f3d268e5a59bb163f7f79bfdf4a8c8d54d4305cc8c8a28295bcd7906baae8fd%40group.calendar.google.com&ctz=America%2FLos_Angeles"
+                            href="#scheduling"
+                            data-calendar-open
                             target="_blank"
                             rel="noopener noreferrer"
                             >Open Calendar</a
                         >
                         <a
                             class="btn btn-light"
-                            href="https://calendar.google.com/calendar/ical/2f3d268e5a59bb163f7f79bfdf4a8c8d54d4305cc8c8a28295bcd7906baae8fd%40group.calendar.google.com/public/basic.ics"
+                            href="#scheduling"
+                            data-calendar-subscribe
                             >Subscribe</a
                         >
                     </div>
@@ -216,13 +222,11 @@
                     </div>
                     <div class="contact-detail">
                         <span class="icon">📞</span>
-                        <a href="tel:+16199337737">(619) 933-7737</a>
+                        <a href="#booking" data-phone-link>Phone</a>
                     </div>
                     <div class="contact-detail">
                         <span class="icon">✉️</span>
-                        <a href="mailto:frannietheclown1@gmail.com"
-                            >frannietheclown1@gmail.com</a
-                        >
+                        <a href="#booking" data-email-link>Email</a>
                     </div>
                     <div class="contact-detail">
                         <span class="icon facebook-icon" aria-hidden="true">
@@ -234,24 +238,45 @@
                             </svg>
                         </span>
                         <a
-                            href="https://www.facebook.com/p/Frannie-the-Clown-100076459472472/"
+                            href="#booking"
+                            data-facebook-link
                             target="_blank"
                             rel="noopener noreferrer"
                             >Frannie the Clown on Facebook</a
                         >
                     </div>
+                    <div class="contact-detail">
+                        <span class="icon yelp-icon" aria-hidden="true">
+                            <img
+                                src="https://www.yelp.com/favicon.ico"
+                                alt=""
+                                width="20"
+                                height="20"
+                                loading="lazy"
+                            />
+                        </span>
+                        <a
+                            href="#booking"
+                            data-yelp-link
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            >Frannie the Clown on Yelp</a
+                        >
+                    </div>
 
+                    <p class="party-checklist-title">Essential Party Checklist!</p>
                     <div class="party-checklist" aria-label="Helpful booking details">
                         <span>Date</span>
                         <span>Location</span>
-                        <span>Guest count</span>
-                        <span>Theme</span>
+                        <span>Phone Number</span>
+                        <span>Type of Event</span>
                     </div>
                 </div>
 
                 <form
                     class="booking-form"
-                    action="https://submit-form.com/A0GcLLdM2"
+                    action=""
+                    data-booking-form
                     method="POST"
                 >
                     <input
@@ -282,6 +307,18 @@
                             />
                         </div>
                         <div>
+                            <label for="phone">Phone Number</label>
+                            <input
+                                type="tel"
+                                id="phone"
+                                name="phone"
+                                placeholder="(619) 555-0000"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div>
                             <label for="email">Email</label>
                             <input
                                 type="email"
@@ -289,18 +326,6 @@
                                 name="email"
                                 placeholder="jane@email.com"
                                 required
-                            />
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div>
-                            <label for="phone">Phone</label>
-                            <input
-                                type="tel"
-                                id="phone"
-                                name="phone"
-                                placeholder="(619) 555-0000"
                             />
                         </div>
                         <div>
@@ -312,12 +337,11 @@
                     <div class="form-row">
                         <div>
                             <label for="event-time">Start Time</label>
-                            <input
-                                type="time"
-                                id="event-time"
-                                name="event_time"
-                                required
-                            />
+                            <select id="event-time" name="event_time" required>
+                                <option value="" disabled hidden selected>
+                                    Select a start time
+                                </option>
+                            </select>
                         </div>
                         <div>
                             <label for="duration">Duration</label>
@@ -398,7 +422,7 @@
                             magical. Every kid was glued to the show the entire
                             time!"
                         </blockquote>
-                        <cite>— Sarah M., Vista CA</cite>
+                        <cite>— Sarah M., San Diego CA</cite>
                     </div>
 
                     <div class="testimonial">
@@ -422,35 +446,132 @@
                     </div>
                 </div>
 
-                <div
-                    class="gallery-grid customer-gallery"
-                    aria-label="Happy customer photos"
-                >
-                    <img
-                        class="gallery-item customer-photo"
-                        src="assets/happycustomer1.jpeg"
-                        alt="Happy customer with Frannie the Clown"
-                    />
-                    <img
-                        class="gallery-item customer-photo"
-                        src="assets/happycustomer2.jpeg"
-                        alt="Smiling customer with Frannie the Clown"
-                    />
-                    <img
-                        class="gallery-item customer-photo"
-                        src="assets/happycustomer3.jpeg"
-                        alt="Happy family enjoying an event with Frannie"
-                    />
-                    <img
-                        class="gallery-item customer-photo"
-                        src="assets/happycustomer4.jpg"
-                        alt="Happy customer posing with Frannie"
-                    />
-                    <img
-                        class="gallery-item customer-photo"
-                        src="assets/happycustomer5.jpeg"
-                        alt="Happy customer at a Frannie the Clown event"
-                    />
+                <div class="customer-carousel" aria-label="Happy customer photos">
+                    <div class="customer-track">
+                        <div class="customer-set">
+                            <button
+                                class="customer-thumb"
+                                type="button"
+                                data-customer-index="0"
+                                aria-label="View happy customer photo 1 of 11"
+                            >
+                                <img
+                                    src="assets/happycustomer1.jpeg"
+                                    alt="Happy customer with Frannie the Clown"
+                                />
+                            </button>
+                            <button
+                                class="customer-thumb"
+                                type="button"
+                                data-customer-index="1"
+                                aria-label="View happy customer photo 2 of 11"
+                            >
+                                <img
+                                    src="assets/happycustomer2.jpeg"
+                                    alt="Smiling customer with Frannie the Clown"
+                                />
+                            </button>
+                            <button
+                                class="customer-thumb"
+                                type="button"
+                                data-customer-index="2"
+                                aria-label="View happy customer photo 3 of 11"
+                            >
+                                <img
+                                    src="assets/happycustomer3.jpeg"
+                                    alt="Happy family enjoying an event with Frannie"
+                                />
+                            </button>
+                            <button
+                                class="customer-thumb"
+                                type="button"
+                                data-customer-index="3"
+                                aria-label="View happy customer photo 4 of 11"
+                            >
+                                <img
+                                    src="assets/happycustomer4.jpg"
+                                    alt="Happy customer posing with Frannie"
+                                />
+                            </button>
+                            <button
+                                class="customer-thumb"
+                                type="button"
+                                data-customer-index="4"
+                                aria-label="View happy customer photo 5 of 11"
+                            >
+                                <img
+                                    src="assets/happycustomer5.jpeg"
+                                    alt="Happy customer at a Frannie the Clown event"
+                                />
+                            </button>
+                            <button
+                                class="customer-thumb"
+                                type="button"
+                                data-customer-index="5"
+                                aria-label="View happy customer photo 6 of 11"
+                            >
+                                <img
+                                    src="assets/happycustomer6.jpeg"
+                                    alt="Happy customer smiling with Frannie the Clown"
+                                />
+                            </button>
+                            <button
+                                class="customer-thumb"
+                                type="button"
+                                data-customer-index="6"
+                                aria-label="View happy customer photo 7 of 11"
+                            >
+                                <img
+                                    src="assets/happycustomer7.jpeg"
+                                    alt="Happy customer enjoying a Frannie the Clown event"
+                                />
+                            </button>
+                            <button
+                                class="customer-thumb"
+                                type="button"
+                                data-customer-index="7"
+                                aria-label="View happy customer photo 8 of 11"
+                            >
+                                <img
+                                    src="assets/happycustomer8.jpeg"
+                                    alt="Happy customer at a party with Frannie the Clown"
+                                />
+                            </button>
+                            <button
+                                class="customer-thumb"
+                                type="button"
+                                data-customer-index="8"
+                                aria-label="View happy customer photo 9 of 11"
+                            >
+                                <img
+                                    src="assets/happycustomer9.jpeg"
+                                    alt="Happy customer posing at a Frannie the Clown event"
+                                />
+                            </button>
+                            <button
+                                class="customer-thumb"
+                                type="button"
+                                data-customer-index="9"
+                                aria-label="View happy customer photo 10 of 11"
+                            >
+                                <img
+                                    src="assets/happycustomer10.jpeg"
+                                    alt="Happy customer celebration with Frannie the Clown"
+                                />
+                            </button>
+                            <button
+                                class="customer-thumb"
+                                type="button"
+                                data-customer-index="10"
+                                aria-label="View happy customer photo 11 of 11"
+                            >
+                                <img
+                                    src="assets/happycustomer11.jpeg"
+                                    alt="Happy customer photo from a Frannie the Clown event"
+                                />
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -483,25 +604,430 @@
                 <img
                     class="gallery-item"
                     src="assets/frannie-paint.jpeg"
-                    alt="Frannie the Clown face painting at an event"
+                    alt="Frannie the Clown with her paint"
+                />
+
+                <img
+                    class="gallery-item"
+                    src="assets/frannie-christmas.jpg"
+                    alt="Frannie the Clown at a Christmas event"
+                />
+
+                <img
+                    class="gallery-item"
+                    src="assets/frannie-police.jpg"
+                    alt="Frannie the Clown with police"
+                />
+
+                <img
+                    class="gallery-item"
+                    src="assets/frannie-firefighter.jpeg"
+                    alt="Frannie the Clown with firefighters"
+                />
+
+                <img
+                    class="gallery-item"
+                    src="assets/frannie-pilot.jpg"
+                    alt="Frannie the Clown with a Maverick"
+                />
+
+                <img
+                    class="gallery-item"
+                    src="assets/frannie-easter.jpeg"
+                    alt="Frannie the Clown at an Easter event"
                 />
             </div>
         </section>
 
+        <div
+            class="gallery-lightbox"
+            data-lightbox
+            role="dialog"
+            aria-modal="true"
+            aria-label="Expanded happy customer photo"
+            hidden
+        >
+            <button
+                class="lightbox-close"
+                type="button"
+                data-lightbox-close
+                aria-label="Close expanded photo"
+            >
+                &times;
+            </button>
+            <button
+                class="lightbox-nav lightbox-prev"
+                type="button"
+                data-lightbox-prev
+                aria-label="Previous photo"
+            >
+                &lsaquo;
+            </button>
+            <figure class="lightbox-frame">
+                <img data-lightbox-image src="" alt="" />
+                <figcaption data-lightbox-caption></figcaption>
+            </figure>
+            <button
+                class="lightbox-nav lightbox-next"
+                type="button"
+                data-lightbox-next
+                aria-label="Next photo"
+            >
+                &rsaquo;
+            </button>
+        </div>
+
         <!-- ── Footer ────────────────────────────────────────── -->
         <footer>
-            <div class="footer-logo">🤡 Frannie the Clown</div>
+            <div class="footer-logo">Frannie the Clown</div>
             <p>Serving San Diego, CA</p>
             <p style="margin-top: 0.5rem">
-                <a href="mailto:frannietheclown1@gmail.com"
-                    >frannietheclown1@gmail.com</a
-                >
+                <a href="#booking" data-email-link>Email</a>
                 &nbsp;·&nbsp;
-                <a href="tel:+16199337737">(619) 933-7737</a>
+                <a href="#booking" data-phone-link>Phone</a>
             </p>
             <p style="margin-top: 1.5rem; font-size: 0.8rem; opacity: 0.45">
                 © 2026 Frannie the Clown. All rights reserved.
             </p>
         </footer>
+        <script src="site-config.js"></script>
+        <script>
+            (() => {
+                const config = window.FRANNIE_SITE_CONFIG || {};
+                const calendarId = config.PUBLIC_CALENDAR_ID || "";
+                const timeZone = config.TIME_ZONE || "America/Los_Angeles";
+                const setConfiguredLink = (selector, href) => {
+                    document.querySelectorAll(selector).forEach((link) => {
+                        if (href) {
+                            link.href = href;
+                        }
+                    });
+                };
+
+                document
+                    .querySelectorAll("[data-calendar-embed]")
+                    .forEach((frame) => {
+                        if (!calendarId) {
+                            return;
+                        }
+
+                        const mode = frame.dataset.calendarMode || "MONTH";
+                        const params = new URLSearchParams({
+                            src: calendarId,
+                            ctz: timeZone,
+                            mode,
+                        });
+
+                        frame.src = `https://calendar.google.com/calendar/embed?${params}`;
+                    });
+
+                if (calendarId) {
+                    const openParams = new URLSearchParams({
+                        src: calendarId,
+                        ctz: timeZone,
+                    });
+
+                    setConfiguredLink(
+                        "[data-calendar-open]",
+                        `https://calendar.google.com/calendar/embed?${openParams}`,
+                    );
+                    setConfiguredLink(
+                        "[data-calendar-subscribe]",
+                        `https://calendar.google.com/calendar/ical/${encodeURIComponent(
+                            calendarId,
+                        )}/public/basic.ics`,
+                    );
+                }
+
+                if (config.CONTACT_PHONE_TEL) {
+                    document.querySelectorAll("[data-phone-link]").forEach(
+                        (link) => {
+                            link.href = `tel:${config.CONTACT_PHONE_TEL}`;
+
+                            if (link.dataset.phoneFormat === "button") {
+                                link.textContent = `Call Frannie: ${
+                                    config.CONTACT_PHONE_DISPLAY ||
+                                    config.CONTACT_PHONE_TEL
+                                }`;
+                                link.setAttribute(
+                                    "aria-label",
+                                    `Call Frannie at ${
+                                        config.CONTACT_PHONE_DISPLAY ||
+                                        config.CONTACT_PHONE_TEL
+                                    }`,
+                                );
+                            } else {
+                                link.textContent =
+                                    config.CONTACT_PHONE_DISPLAY ||
+                                    config.CONTACT_PHONE_TEL;
+                            }
+                        },
+                    );
+                }
+
+                if (config.CONTACT_EMAIL) {
+                    document.querySelectorAll("[data-email-link]").forEach(
+                        (link) => {
+                            link.href = `mailto:${config.CONTACT_EMAIL}`;
+                            link.textContent = config.CONTACT_EMAIL;
+                        },
+                    );
+                }
+
+                setConfiguredLink("[data-facebook-link]", config.FACEBOOK_URL);
+                setConfiguredLink("[data-yelp-link]", config.YELP_URL);
+
+                const bookingForm = document.querySelector("[data-booking-form]");
+
+                if (bookingForm && config.FORMSPARK_FORM_URL) {
+                    bookingForm.action = config.FORMSPARK_FORM_URL;
+                } else if (bookingForm) {
+                    bookingForm.addEventListener("submit", (event) => {
+                        event.preventDefault();
+                        window.alert(
+                            "Booking form configuration is missing. Please call or email Frannie.",
+                        );
+                    });
+                }
+            })();
+        </script>
+        <script>
+            (() => {
+                const eventTime = document.querySelector("#event-time");
+
+                if (!eventTime) {
+                    return;
+                }
+
+                const minutesPerDay = 24 * 60;
+                const interval = 15;
+                const formatTime = (totalMinutes) => {
+                    const normalized =
+                        ((totalMinutes % minutesPerDay) + minutesPerDay) %
+                        minutesPerDay;
+                    const hours = Math.floor(normalized / 60);
+                    const minutes = normalized % 60;
+
+                    return `${String(hours).padStart(2, "0")}:${String(
+                        minutes,
+                    ).padStart(2, "0")}`;
+                };
+                const roundUpToQuarter = (totalMinutes) =>
+                    Math.ceil(totalMinutes / interval) * interval;
+                const timeToMinutes = (value) => {
+                    const match = value.match(/^(\d{2}):(\d{2})$/);
+
+                    if (!match) {
+                        return null;
+                    }
+
+                    return Number(match[1]) * 60 + Number(match[2]);
+                };
+                const formatTimeLabel = (value) => {
+                    const selectedMinutes = timeToMinutes(value);
+
+                    if (selectedMinutes === null) {
+                        return value;
+                    }
+
+                    const hours = Math.floor(selectedMinutes / 60);
+                    const minutes = selectedMinutes % 60;
+                    const displayHours = hours % 12 || 12;
+                    const period = hours < 12 ? "AM" : "PM";
+
+                    return `${displayHours}:${String(minutes).padStart(
+                        2,
+                        "0",
+                    )} ${period}`;
+                };
+                const populateTimeOptions = () => {
+                    for (
+                        let totalMinutes = 0;
+                        totalMinutes < minutesPerDay;
+                        totalMinutes += interval
+                    ) {
+                        const value = formatTime(totalMinutes);
+                        const option = document.createElement("option");
+
+                        option.value = value;
+                        option.textContent = formatTimeLabel(value);
+                        eventTime.append(option);
+                    }
+                };
+                const setRoundedValue = () => {
+                    const selectedMinutes = timeToMinutes(eventTime.value);
+
+                    if (selectedMinutes === null) {
+                        return;
+                    }
+
+                    eventTime.value = formatTime(
+                        roundUpToQuarter(selectedMinutes),
+                    );
+                };
+                const now = new Date();
+
+                populateTimeOptions();
+
+                if (!eventTime.value) {
+                    eventTime.value = formatTime(
+                        roundUpToQuarter(now.getHours() * 60 + now.getMinutes()),
+                    );
+                }
+
+                eventTime.addEventListener("change", setRoundedValue);
+                eventTime.addEventListener("blur", setRoundedValue);
+            })();
+        </script>
+        <script>
+            (() => {
+                const modal = document.querySelector("[data-lightbox]");
+                const image = document.querySelector("[data-lightbox-image]");
+                const caption = document.querySelector(
+                    "[data-lightbox-caption]",
+                );
+                const closeButton = document.querySelector(
+                    "[data-lightbox-close]",
+                );
+                const previousButton = document.querySelector(
+                    "[data-lightbox-prev]",
+                );
+                const nextButton = document.querySelector("[data-lightbox-next]");
+                const carousel = document.querySelector(".customer-carousel");
+                const originalSet = document.querySelector(".customer-set");
+
+                if (
+                    !modal ||
+                    !image ||
+                    !caption ||
+                    !closeButton ||
+                    !previousButton ||
+                    !nextButton ||
+                    !carousel ||
+                    !originalSet
+                ) {
+                    return;
+                }
+
+                const originalButtons = Array.from(
+                    originalSet.querySelectorAll(".customer-thumb"),
+                );
+                const photos = originalButtons.map((button) => {
+                    const photo = button.querySelector("img");
+
+                    return {
+                        src: photo.getAttribute("src"),
+                        alt: photo.getAttribute("alt"),
+                    };
+                });
+                const duplicateSet = originalSet.cloneNode(true);
+
+                duplicateSet.classList.add("customer-duplicates");
+                duplicateSet.setAttribute("aria-hidden", "true");
+                duplicateSet.querySelectorAll(".customer-thumb").forEach(
+                    (button) => {
+                        const photo = button.querySelector("img");
+
+                        button.setAttribute("tabindex", "-1");
+                        button.removeAttribute("aria-label");
+
+                        if (photo) {
+                            photo.setAttribute("alt", "");
+                        }
+                    },
+                );
+                originalSet.after(duplicateSet);
+
+                const allButtons = Array.from(
+                    document.querySelectorAll(".customer-thumb"),
+                );
+                let currentIndex = 0;
+                let lastFocusedElement = null;
+                let resumeTimer = null;
+
+                const showPhoto = (index) => {
+                    currentIndex = (index + photos.length) % photos.length;
+                    image.src = photos[currentIndex].src;
+                    image.alt = photos[currentIndex].alt;
+                    caption.textContent = `Photo ${currentIndex + 1} of ${
+                        photos.length
+                    }`;
+                };
+
+                const openLightbox = (index) => {
+                    lastFocusedElement = document.activeElement;
+                    modal.hidden = false;
+                    document.body.classList.add("lightbox-open");
+                    showPhoto(index);
+                    closeButton.focus();
+                };
+
+                const resumeCarousel = () => {
+                    carousel.classList.add("is-resuming");
+                    window.clearTimeout(resumeTimer);
+                    resumeTimer = window.setTimeout(() => {
+                        carousel.classList.remove("is-resuming");
+                    }, 1200);
+                };
+
+                const closeLightbox = ({ restoreFocus = true } = {}) => {
+                    modal.hidden = true;
+                    image.src = "";
+                    document.body.classList.remove("lightbox-open");
+
+                    if (restoreFocus && lastFocusedElement) {
+                        lastFocusedElement.focus();
+                    } else if (document.activeElement) {
+                        document.activeElement.blur();
+                        resumeCarousel();
+                    }
+                };
+
+                carousel.addEventListener("pointerleave", () => {
+                    carousel.classList.remove("is-resuming");
+                });
+                carousel.addEventListener("focusin", () => {
+                    carousel.classList.remove("is-resuming");
+                });
+                allButtons.forEach((button) => {
+                    button.addEventListener("click", () => {
+                        carousel.classList.remove("is-resuming");
+                        openLightbox(Number(button.dataset.customerIndex));
+                    });
+                });
+
+                closeButton.addEventListener("click", () => {
+                    closeLightbox({ restoreFocus: false });
+                });
+                previousButton.addEventListener("click", () => {
+                    showPhoto(currentIndex - 1);
+                });
+                nextButton.addEventListener("click", () => {
+                    showPhoto(currentIndex + 1);
+                });
+                modal.addEventListener("click", (event) => {
+                    if (event.target === modal) {
+                        closeLightbox({ restoreFocus: false });
+                    }
+                });
+                document.addEventListener("keydown", (event) => {
+                    if (modal.hidden) {
+                        return;
+                    }
+
+                    if (event.key === "Escape") {
+                        closeLightbox();
+                    }
+
+                    if (event.key === "ArrowLeft") {
+                        showPhoto(currentIndex - 1);
+                    }
+
+                    if (event.key === "ArrowRight") {
+                        showPhoto(currentIndex + 1);
+                    }
+                });
+            })();
+        </script>
     </body>
 </html>

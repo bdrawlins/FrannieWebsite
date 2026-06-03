@@ -1,18 +1,7 @@
-// Use a dedicated public calendar for the website, for example
-// "Frannie Bookings". The site embeds this same calendar, and this script
-// writes pending booking holds to it.
-const BOOKING_CALENDAR_ID =
-  "2f3d268e5a59bb163f7f79bfdf4a8c8d54d4305cc8c8a28295bcd7906baae8fd@group.calendar.google.com";
-
-// Optional: add private calendars here to reject conflicts without showing
-// those private events on the public website.
-const BLOCKING_CALENDAR_IDS = [
-  BOOKING_CALENDAR_ID,
-];
-
-const NOTIFY_EMAIL = "frannietheclown1@gmail.com";
-const TIME_ZONE = "America/Los_Angeles";
-const WEBHOOK_SECRET = "";
+// Configure these values in Apps Script Project Settings > Script Properties.
+// Required: BOOKING_CALENDAR_ID, NOTIFY_EMAIL.
+// Optional: BLOCKING_CALENDAR_IDS, TIME_ZONE, WEBHOOK_SECRET.
+const DEFAULT_TIME_ZONE = "America/Los_Angeles";
 
 function doGet() {
   return renderResult(
@@ -25,11 +14,15 @@ function doPost(e) {
   try {
     return handleBookingPost(e);
   } catch (error) {
-    MailApp.sendEmail({
-      to: NOTIFY_EMAIL,
-      subject: "Booking calendar webhook error",
-      body: error && error.stack ? error.stack : String(error),
-    });
+    const notifyEmail = getOptionalScriptProperty("NOTIFY_EMAIL");
+
+    if (notifyEmail) {
+      MailApp.sendEmail({
+        to: notifyEmail,
+        subject: "Booking calendar webhook error",
+        body: error && error.stack ? error.stack : String(error),
+      });
+    }
 
     return renderResult(
       "Booking error",
@@ -39,15 +32,16 @@ function doPost(e) {
 }
 
 function testCalendarWrite() {
+  const config = getBookingConfig();
   const start = new Date();
   start.setDate(start.getDate() + 1);
   start.setHours(9, 0, 0, 0);
 
   const end = new Date(start.getTime() + 15 * 60 * 1000);
-  const calendar = CalendarApp.getCalendarById(BOOKING_CALENDAR_ID);
+  const calendar = CalendarApp.getCalendarById(config.bookingCalendarId);
 
   if (!calendar) {
-    throw new Error("Calendar not found: " + BOOKING_CALENDAR_ID);
+    throw new Error("Calendar not found: " + config.bookingCalendarId);
   }
 
   const event = calendar.createEvent(
@@ -65,7 +59,9 @@ function testCalendarWrite() {
 }
 
 function handleBookingPost(e) {
-  if (!isAuthorizedWebhook(e)) {
+  const config = getBookingConfig();
+
+  if (!isAuthorizedWebhook(e, config)) {
     return renderResult(
       "Unauthorized",
       "This booking webhook could not be verified."
@@ -95,7 +91,7 @@ function handleBookingPost(e) {
     );
   }
 
-  const bookingCalendar = CalendarApp.getCalendarById(BOOKING_CALENDAR_ID);
+  const bookingCalendar = CalendarApp.getCalendarById(config.bookingCalendarId);
   if (!bookingCalendar) {
     return renderResult(
       "Calendar unavailable",
@@ -118,7 +114,7 @@ function handleBookingPost(e) {
     );
   }
 
-  const conflicts = getConflicts(start, end);
+  const conflicts = getConflicts(start, end, config.blockingCalendarIds);
   if (conflicts.length) {
     return renderResult(
       "That time is already booked",
@@ -137,7 +133,7 @@ function handleBookingPost(e) {
   );
   event.setColor(CalendarApp.EventColor.YELLOW);
 
-  sendNotifications(params, start, end);
+  sendNotifications(params, start, end, config);
 
   return renderResult(
     "Request received",
@@ -145,13 +141,55 @@ function handleBookingPost(e) {
   );
 }
 
-function isAuthorizedWebhook(e) {
-  if (!WEBHOOK_SECRET) {
+function getBookingConfig() {
+  const bookingCalendarId = getRequiredScriptProperty("BOOKING_CALENDAR_ID");
+  const notifyEmail = getRequiredScriptProperty("NOTIFY_EMAIL");
+  const blockingCalendarIds =
+    getCsvScriptProperty("BLOCKING_CALENDAR_IDS") || [bookingCalendarId];
+
+  return {
+    bookingCalendarId,
+    blockingCalendarIds,
+    notifyEmail,
+    timeZone: getOptionalScriptProperty("TIME_ZONE") || DEFAULT_TIME_ZONE,
+    webhookSecret: getOptionalScriptProperty("WEBHOOK_SECRET"),
+  };
+}
+
+function getRequiredScriptProperty(name) {
+  const value = getOptionalScriptProperty(name);
+
+  if (!value) {
+    throw new Error("Missing Apps Script property: " + name);
+  }
+
+  return value;
+}
+
+function getOptionalScriptProperty(name) {
+  return PropertiesService.getScriptProperties().getProperty(name) || "";
+}
+
+function getCsvScriptProperty(name) {
+  const value = getOptionalScriptProperty(name);
+
+  if (!value) {
+    return null;
+  }
+
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function isAuthorizedWebhook(e, config) {
+  if (!config.webhookSecret) {
     return true;
   }
 
   const params = e && e.parameter ? e.parameter : {};
-  return params.booking_key === WEBHOOK_SECRET;
+  return params.booking_key === config.webhookSecret;
 }
 
 function extractSubmission(e) {
@@ -190,8 +228,8 @@ function parseJsonPostData(e) {
   }
 }
 
-function getConflicts(start, end) {
-  return BLOCKING_CALENDAR_IDS.flatMap((calendarId) => {
+function getConflicts(start, end, calendarIds) {
+  return calendarIds.flatMap((calendarId) => {
     const calendar = CalendarApp.getCalendarById(calendarId);
     return calendar ? calendar.getEvents(start, end) : [];
   });
@@ -236,14 +274,14 @@ function eventDescription(params) {
   ].join("\n");
 }
 
-function sendNotifications(params, start, end) {
+function sendNotifications(params, start, end, config) {
   const when =
-    Utilities.formatDate(start, TIME_ZONE, "EEEE, MMMM d, yyyy h:mm a") +
+    Utilities.formatDate(start, config.timeZone, "EEEE, MMMM d, yyyy h:mm a") +
     " - " +
-    Utilities.formatDate(end, TIME_ZONE, "h:mm a");
+    Utilities.formatDate(end, config.timeZone, "h:mm a");
 
   MailApp.sendEmail({
-    to: NOTIFY_EMAIL,
+    to: config.notifyEmail,
     replyTo: params.email,
     subject: "New pending booking: " + eventTitle(params),
     body: eventDescription(params) + "\n\nWhen: " + when,

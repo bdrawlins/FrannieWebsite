@@ -1,14 +1,20 @@
 PORT ?= 8000
 
-.PHONY: serve check ports stop-local
+.PHONY: config serve check ports stop-local
 
-serve:
+config:
+	python3 scripts/build_site_config.py
+
+serve: config
 	python3 -m http.server $(PORT)
 
 check:
 	git diff --check
+	test -f .env.example
+	test -f .github/workflows/deploy-pages.yml
 	test -f index.html
 	test -f index.css
+	test -f scripts/build_site_config.py
 	test -f google-calendar-booking.gs
 	test -f assets/favicon.svg
 	test -f assets/brianandfrannie.jpg
