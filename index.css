@@ -348,6 +348,14 @@ h2 {
     display: none;
 }
 
+.calendar-note {
+    margin-top: 1rem;
+    max-width: 720px;
+    color: rgba(26, 34, 64, 0.72);
+    font-size: 0.95rem;
+    line-height: 1.55;
+}
+
 .availability-footer {
     margin-top: 1.25rem;
 }
@@ -573,20 +581,15 @@ h2 {
 }
 
 .customer-gallery {
-    display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 0.85rem;
     margin-top: 2rem;
 }
 
-.customer-gallery img {
-    width: 100%;
+.customer-gallery .customer-photo {
     aspect-ratio: 4 / 5;
     border: 3px solid var(--yellow);
-    border-radius: var(--radius);
     box-shadow: 3px 3px 0 rgba(249, 200, 70, 0.9);
-    object-fit: cover;
-    display: block;
+    background: rgba(255, 255, 255, 0.12);
 }
 
 /* ── Gallery ────────────────────────────────────────── */

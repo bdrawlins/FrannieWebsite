@@ -75,8 +75,9 @@ site, add those calendar IDs to `BLOCKING_CALENDAR_IDS` in
 
 Setup:
 
-1. Confirm the Google Calendar above is public or shareable enough for the
-   website embed.
+1. In Google Calendar settings for the calendar above, enable "Make available to
+   public". Use "See all event details" if event titles should show, or "See
+   only free/busy" if the public site should only show blocked times.
 2. Create a Google Apps Script project while signed in as the calendar owner.
 3. Paste in the contents of `google-calendar-booking.gs`.
 4. Deploy the script as a Web App.
