@@ -143,17 +143,30 @@
                 <h2>Check Availability</h2>
                 <div class="divider"></div>
                 <p>
-                    Weekend party times can fill up quickly. Send your event
-                    date and details, and Frannie will confirm availability
-                    within 24 hours.
+                    This calendar shows Frannie's booking holds and confirmed
+                    events. Weekend party times can fill up quickly, so send
+                    your event details early.
                 </p>
 
                 <div class="calendar-wrap">
-                    <div class="cal-icon">📅</div>
-                    <div>Ready to check your date?</div>
-                    <p class="cal-note">
-                        Use the booking form below, call, or email with your
-                        preferred date, time, location, and party size.
+                    <iframe
+                        class="calendar-desktop"
+                        title="Frannie the Clown availability calendar"
+                        src="https://calendar.google.com/calendar/embed?src=2f3d268e5a59bb163f7f79bfdf4a8c8d54d4305cc8c8a28295bcd7906baae8fd%40group.calendar.google.com&ctz=America%2FLos_Angeles&mode=MONTH"
+                        loading="lazy"
+                    ></iframe>
+                    <iframe
+                        class="calendar-mobile"
+                        title="Frannie the Clown availability calendar agenda"
+                        src="https://calendar.google.com/calendar/embed?src=2f3d268e5a59bb163f7f79bfdf4a8c8d54d4305cc8c8a28295bcd7906baae8fd%40group.calendar.google.com&ctz=America%2FLos_Angeles&mode=AGENDA"
+                        loading="lazy"
+                    ></iframe>
+                </div>
+
+                <div class="availability-footer">
+                    <p>
+                        See a date that might work? Frannie will confirm final
+                        availability after reviewing your event request.
                     </p>
                     <div class="availability-actions">
                         <a class="btn btn-primary" href="#booking"
@@ -161,6 +174,18 @@
                         >
                         <a class="btn btn-light" href="tel:+16199337737"
                             >Call Frannie</a
+                        >
+                        <a
+                            class="btn btn-light"
+                            href="https://calendar.google.com/calendar/embed?src=2f3d268e5a59bb163f7f79bfdf4a8c8d54d4305cc8c8a28295bcd7906baae8fd%40group.calendar.google.com&ctz=America%2FLos_Angeles"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            >Open Calendar</a
+                        >
+                        <a
+                            class="btn btn-light"
+                            href="https://calendar.google.com/calendar/ical/2f3d268e5a59bb163f7f79bfdf4a8c8d54d4305cc8c8a28295bcd7906baae8fd%40group.calendar.google.com/public/basic.ics"
+                            >Subscribe</a
                         >
                     </div>
                 </div>
@@ -278,6 +303,27 @@
                         </div>
                     </div>
 
+                    <div class="form-row">
+                        <div>
+                            <label for="event-time">Start Time</label>
+                            <input
+                                type="time"
+                                id="event-time"
+                                name="event_time"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label for="duration">Duration</label>
+                            <select id="duration" name="duration" required>
+                                <option value="60">1 hour</option>
+                                <option value="90" selected>1.5 hours</option>
+                                <option value="120">2 hours</option>
+                                <option value="180">3 hours</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div>
                         <label for="event-type">Type of Event</label>
                         <select id="event-type" name="event_type">
@@ -298,6 +344,17 @@
                             name="guests"
                             placeholder="e.g. 30"
                             min="1"
+                        />
+                    </div>
+
+                    <div>
+                        <label for="location">Event Location</label>
+                        <input
+                            type="text"
+                            id="location"
+                            name="location"
+                            placeholder="Venue name or neighborhood"
+                            required
                         />
                     </div>
 
@@ -358,6 +415,29 @@
                         <cite>— Linda K., Librarian</cite>
                     </div>
                 </div>
+
+                <div class="customer-gallery" aria-label="Happy customer photos">
+                    <img
+                        src="assets/happycustomer1.jpeg"
+                        alt="Happy customer with Frannie the Clown"
+                    />
+                    <img
+                        src="assets/happycustomer2.jpeg"
+                        alt="Smiling customer with Frannie the Clown"
+                    />
+                    <img
+                        src="assets/happycustomer3.jpeg"
+                        alt="Happy family enjoying an event with Frannie"
+                    />
+                    <img
+                        src="assets/happycustomer4.jpg"
+                        alt="Happy customer posing with Frannie"
+                    />
+                    <img
+                        src="assets/happycustomer5.jpeg"
+                        alt="Happy customer at a Frannie the Clown event"
+                    />
+                </div>
             </div>
         </div>
 
@@ -384,6 +464,12 @@
                     class="gallery-item"
                     src="assets/frannie-day.jpg"
                     alt="Frannie the Clown at an event"
+                />
+
+                <img
+                    class="gallery-item"
+                    src="assets/frannie-paint.jpeg"
+                    alt="Frannie the Clown face painting at an event"
                 />
             </div>
         </section>

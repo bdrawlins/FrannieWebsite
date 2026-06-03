@@ -329,42 +329,41 @@ h2 {
 }
 
 .calendar-wrap {
-    min-height: 360px;
     border: 3px solid var(--navy);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
     background: var(--white);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.8rem;
-    padding: 2rem;
-    text-align: center;
+    overflow: hidden;
 }
 
-.cal-icon {
-    font-size: 3rem;
-    line-height: 1;
+.calendar-wrap iframe {
+    width: 100%;
+    min-height: 560px;
+    border: 0;
+    display: block;
+    background: var(--white);
 }
 
-.calendar-wrap > div:not(.cal-icon) {
-    font-family: var(--font-h);
-    font-size: 1.8rem;
+.calendar-mobile {
+    display: none;
 }
 
-.cal-note {
-    max-width: 520px;
-    color: rgba(26, 34, 64, 0.68);
+.availability-footer {
+    margin-top: 1.25rem;
+}
+
+.availability-footer p {
+    max-width: 680px;
+    color: rgba(26, 34, 64, 0.72);
     line-height: 1.6;
 }
 
 .availability-actions {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 0.9rem;
-    margin-top: 0.4rem;
+    margin-top: 1rem;
 }
 
 .availability-actions .btn {
@@ -573,6 +572,23 @@ h2 {
     font-weight: 700;
 }
 
+.customer-gallery {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.85rem;
+    margin-top: 2rem;
+}
+
+.customer-gallery img {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    border: 3px solid var(--yellow);
+    border-radius: var(--radius);
+    box-shadow: 3px 3px 0 rgba(249, 200, 70, 0.9);
+    object-fit: cover;
+    display: block;
+}
+
 /* ── Gallery ────────────────────────────────────────── */
 #gallery {
     border-top: 2px dashed rgba(26, 34, 64, 0.12);
@@ -649,7 +665,8 @@ footer a:hover {
     }
 
     .cards,
-    .testimonial-grid {
+    .testimonial-grid,
+    .customer-gallery {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
@@ -727,7 +744,8 @@ footer a:hover {
     }
 
     .cards,
-    .testimonial-grid {
+    .testimonial-grid,
+    .customer-gallery {
         grid-template-columns: 1fr;
     }
 
@@ -746,6 +764,18 @@ footer a:hover {
     .booking-form {
         padding: 1rem;
     }
+
+    .calendar-desktop {
+        display: none;
+    }
+
+    .calendar-mobile {
+        display: block;
+    }
+
+    .calendar-wrap iframe {
+        min-height: 430px;
+    }
 }
 
 @media (max-width: 430px) {
@@ -756,11 +786,6 @@ footer a:hover {
     .hero-text .eyebrow,
     .section-label {
         font-size: 0.78rem;
-    }
-
-    .calendar-wrap {
-        min-height: 300px;
-        padding: 1.25rem;
     }
 
     .gallery-grid {

@@ -9,11 +9,18 @@ check:
 	git diff --check
 	test -f index.html
 	test -f index.css
+	test -f google-calendar-booking.gs
 	test -f assets/favicon.svg
 	test -f assets/brianandfrannie.jpg
 	test -f assets/frannie.jpeg
 	test -f assets/frannie-day.jpg
 	test -f assets/frannie-veteran.jpg
+	test -f assets/frannie-paint.jpeg
+	test -f assets/happycustomer1.jpeg
+	test -f assets/happycustomer2.jpeg
+	test -f assets/happycustomer3.jpeg
+	test -f assets/happycustomer4.jpg
+	test -f assets/happycustomer5.jpeg
 	@if rg -n "Photo Coming Soon|Goes Here|Replace|YOUR_|href=\"#\"|frannie@example|123-4567|2025|TODO" index.html index.css README.md; then \
 		echo "Placeholder-like text found"; \
 		exit 1; \
