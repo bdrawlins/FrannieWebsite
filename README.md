@@ -51,9 +51,27 @@ booking form is one column on mobile, and gallery images remain square.
 ## Automatic booking sync
 
 The file `google-calendar-booking.gs` is a Google Apps Script webhook for the
-Formspark booking form. It checks Frannie's booking calendar for conflicts,
-creates a yellow pending calendar event when the slot is open, and emails both
-Frannie and the customer.
+Formspark booking form. Formspark keeps the booking inbox and forwards each
+submission to Apps Script as JSON. Apps Script emails Frannie secure confirm and
+decline links, then creates a gray all-day `Booked` calendar event only after
+Frannie clicks the confirm link. The customer receives an automatic receipt
+first, then a confirmation email after the calendar block is created.
+
+Formspark webhooks send submitted form fields as a top-level JSON object, so the
+field names in `index.html` are the contract with Apps Script. Required fields
+are `name`, `email`, `date`, `event_time`, `duration`, and `location`. Optional
+fields currently used in emails are `phone`, `event_type`, `guests`, and
+`message`.
+
+To avoid exposing customer PII on the embedded public calendar, calendar events
+use the generic title `Booked`, a broad San Diego location, and a short
+non-sensitive description. Customer name, email, phone, exact event location,
+and message stay in Formspark and in Frannie's approval emails.
+
+The approval token stored in Apps Script is also minimized. Until a request is
+confirmed, declined, or cleaned up, Apps Script stores the date/time, customer
+email, event type, and guest count. The full message, phone number, customer
+name, and exact location are not stored in the pending token record.
 
 ## Configuration
 
@@ -95,6 +113,15 @@ FRANNIE_YELP_URL
 These are repository variables, not secrets. The deployed browser receives them
 inside `site-config.js`.
 
+Optional repository variable:
+
+```text
+FRANNIE_BOTPOISON_PUBLIC_KEY
+```
+
+This is safe to expose in the browser. Keep the Botpoison secret key only in
+Formspark's spam protection settings.
+
 Do not add Apps Script-only values to the Pages workflow. Set those directly in
 Apps Script Script Properties and Formspark settings:
 
@@ -103,8 +130,14 @@ BOOKING_CALENDAR_ID
 BLOCKING_CALENDAR_IDS
 NOTIFY_EMAIL
 TIME_ZONE
+WEB_APP_URL
 WEBHOOK_SECRET
 ```
+
+`WEBHOOK_SECRET` is the shared password between Formspark and Apps Script. It is
+not generated into `site-config.js` and should not be added to GitHub Pages
+variables. Store it as `WEBHOOK_SECRET` in Apps Script, then append it to the
+Formspark Webhook URL as `?booking_key=...`.
 
 The embedded website calendar and Apps Script `BOOKING_CALENDAR_ID` should point
 to the same dedicated public booking calendar. That keeps the public site limited
@@ -116,6 +149,11 @@ to:
 The public iCal feed generated from that calendar ID is safe to share for
 read-only subscriptions. Do not publish a private iCal feed, because it contains
 a private subscription token.
+
+For the strongest privacy, set the public calendar sharing level to "See only
+free/busy". If you want visitors to see the word `Booked`, use "See all event
+details"; the code avoids writing customer PII into calendar title, location,
+or description either way.
 
 If private calendars should block conflicts without appearing on the website,
 add those calendar IDs to `FRANNIE_APPS_SCRIPT_BLOCKING_CALENDAR_IDS` in `.env`
@@ -140,30 +178,54 @@ Setup:
 5. Paste in the contents of `google-calendar-booking.gs`.
 6. In Apps Script Project Settings, add Script Properties:
    `BOOKING_CALENDAR_ID`, `NOTIFY_EMAIL`, `TIME_ZONE`, optional
-   `BLOCKING_CALENDAR_IDS`, and optional `WEBHOOK_SECRET`.
+   `BLOCKING_CALENDAR_IDS`, optional `WEB_APP_URL`, and optional
+   `WEBHOOK_SECRET`.
 7. Deploy the script as a Web App.
 8. Set "Execute as" to yourself.
 9. Set access to "Anyone".
 10. Copy the Web App `/exec` URL.
 11. In Formspark, open the booking form settings.
 12. Set the Webhook URL to the Apps Script `/exec` URL. You can keep that URL in
-   `.env` as `FRANNIE_APPS_SCRIPT_WEB_APP_URL` for reference.
+   `.env` as `FRANNIE_APPS_SCRIPT_WEB_APP_URL` for reference. Also add the same
+   URL as the Apps Script `WEB_APP_URL` property if confirmation links do not
+   appear correctly in email.
 13. Set Custom honeypot to `website`.
+14. To protect the submission quota more strongly, enable Botpoison in
+    Formspark's Spam Protection settings. Put the Botpoison public key in
+    `FRANNIE_BOTPOISON_PUBLIC_KEY` and the Botpoison secret key in Formspark
+    only.
 
 Formspark keeps the booking inbox, then forwards each submission to Apps Script
-so it can create the calendar hold.
+so it can email Frannie for manual approval.
+
+Quota protection:
+
+- Formspark should reject spam before saving a submission, sending
+  notifications, decrementing the submission counter, or calling the webhook.
+- The form includes both the custom `website` honeypot and the default
+  `_gotcha` honeypot field.
+- Apps Script still checks honeypot fields as a fallback, but that fallback runs
+  after Formspark receives the submission, so it is not enough by itself to
+  protect a Formspark monthly limit.
 
 Optional webhook secret:
 
 1. Set `WEBHOOK_SECRET` as an Apps Script Script Property.
-2. Add it to the Formspark Webhook URL as a query parameter:
+2. Add the same value to the Formspark Webhook URL as a query parameter:
 
 ```text
 https://script.google.com/macros/s/deployment-id/exec?booking_key=private-secret
 ```
 
-After setup, submit the same date and time twice. The first request should
-create a pending event; the second request should be rejected as already booked.
+If `WEBHOOK_SECRET` is set in Apps Script, any webhook call without the matching
+`booking_key` query parameter is rejected before the booking request is stored
+or emailed for approval.
+
+After setup, submit a test booking. Frannie should receive an email with confirm
+and decline links. The calendar should stay unchanged until the confirm link is
+clicked. After confirmation, submit another test request anywhere on the same
+date; the new confirmation link should refuse to create a duplicate block
+because the full day is already booked.
 
 Troubleshooting:
 
@@ -173,9 +235,11 @@ Troubleshooting:
   script owner does not have write permission to the booking calendar, or the
   calendar ID is wrong. Public sharing lets visitors view the calendar, but it
   does not grant Apps Script write access.
-- If `testCalendarWrite` succeeds but form submissions do not create events,
+- If `testCalendarWrite` succeeds but Frannie does not receive approval emails,
   Formspark is not forwarding submissions to Apps Script. Confirm the Webhook
   URL points at the current Apps Script `/exec` URL.
+- If approval emails arrive but their confirm links fail, set `WEB_APP_URL` in
+  Apps Script Script Properties to the current `/exec` deployment URL.
 - After editing `google-calendar-booking.gs`, create a new Apps Script
   deployment version or update the existing deployment. Saving the file alone
   does not update the live `/exec` URL.

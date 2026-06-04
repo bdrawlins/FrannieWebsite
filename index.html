@@ -294,6 +294,15 @@
                         tabindex="-1"
                         autocomplete="off"
                     />
+                    <label class="visually-hidden" for="gotcha">Gotcha</label>
+                    <input
+                        class="visually-hidden"
+                        type="text"
+                        id="gotcha"
+                        name="_gotcha"
+                        tabindex="-1"
+                        autocomplete="off"
+                    />
 
                     <div class="form-row">
                         <div>
@@ -401,7 +410,8 @@
                         🎉 Send Booking Request
                     </button>
                     <p class="form-note">
-                        Frannie usually replies within 24 hours.
+                        Frannie reviews each request before adding a calendar
+                        hold.
                     </p>
                 </form>
             </div>
@@ -781,6 +791,18 @@
 
                 if (bookingForm && config.FORMSPARK_FORM_URL) {
                     bookingForm.action = config.FORMSPARK_FORM_URL;
+
+                    if (config.BOTPOISON_PUBLIC_KEY) {
+                        bookingForm.dataset.botpoisonPublicKey =
+                            config.BOTPOISON_PUBLIC_KEY;
+
+                        const botpoisonScript =
+                            document.createElement("script");
+                        botpoisonScript.src =
+                            "https://unpkg.com/@botpoison/browser";
+                        botpoisonScript.async = true;
+                        document.head.append(botpoisonScript);
+                    }
                 } else if (bookingForm) {
                     bookingForm.addEventListener("submit", (event) => {
                         event.preventDefault();

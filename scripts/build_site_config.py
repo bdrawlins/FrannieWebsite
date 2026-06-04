@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ENV_PATH = ROOT / ".env"
 OUTPUT_PATH = ROOT / "site-config.js"
 
-PUBLIC_KEYS = [
+REQUIRED_PUBLIC_KEYS = [
     "FRANNIE_FORMSPARK_FORM_URL",
     "FRANNIE_PUBLIC_CALENDAR_ID",
     "FRANNIE_TIME_ZONE",
@@ -22,6 +22,10 @@ PUBLIC_KEYS = [
     "FRANNIE_CONTACT_PHONE_TEL",
     "FRANNIE_FACEBOOK_URL",
     "FRANNIE_YELP_URL",
+]
+
+OPTIONAL_PUBLIC_KEYS = [
+    "FRANNIE_BOTPOISON_PUBLIC_KEY",
 ]
 
 
@@ -60,8 +64,9 @@ def parse_env_file(path: Path) -> dict[str, str]:
 
 def main() -> None:
     env_values = parse_env_file(ENV_PATH)
-    merged = {key: os.environ.get(key, env_values.get(key, "")) for key in PUBLIC_KEYS}
-    missing = [key for key, value in merged.items() if not value]
+    public_keys = REQUIRED_PUBLIC_KEYS + OPTIONAL_PUBLIC_KEYS
+    merged = {key: os.environ.get(key, env_values.get(key, "")) for key in public_keys}
+    missing = [key for key in REQUIRED_PUBLIC_KEYS if not merged[key]]
 
     if missing:
         names = ", ".join(missing)

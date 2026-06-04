@@ -1,12 +1,24 @@
 // Configure these values in Apps Script Project Settings > Script Properties.
 // Required: BOOKING_CALENDAR_ID, NOTIFY_EMAIL.
-// Optional: BLOCKING_CALENDAR_IDS, TIME_ZONE, WEBHOOK_SECRET.
+// Optional: BLOCKING_CALENDAR_IDS, TIME_ZONE, WEBHOOK_SECRET, WEB_APP_URL.
 const DEFAULT_TIME_ZONE = "America/Los_Angeles";
+const PENDING_BOOKING_PREFIX = "PENDING_BOOKING_";
+const PENDING_BOOKING_TTL_DAYS = 45;
 
-function doGet() {
+function doGet(e) {
+  const params = e && e.parameter ? e.parameter : {};
+
+  if (params.action === "confirm") {
+    return handleBookingConfirmation(params.token);
+  }
+
+  if (params.action === "decline") {
+    return handleBookingDecline(params.token);
+  }
+
   return renderResult(
     "Booking webhook is live",
-    "This Google Apps Script deployment is reachable. Submit the booking form or run testCalendarWrite from the Apps Script editor to verify calendar writes."
+    "This Google Apps Script deployment is reachable. Submit the booking form, then use the emailed confirmation link to create a calendar hold."
   );
 }
 
@@ -26,7 +38,7 @@ function doPost(e) {
 
     return renderResult(
       "Booking error",
-      "The booking request was received, but the calendar hold could not be created. Frannie has been notified."
+      "The booking request was received, but it could not be processed. Frannie has been notified."
     );
   }
 }
@@ -91,14 +103,6 @@ function handleBookingPost(e) {
     );
   }
 
-  const bookingCalendar = CalendarApp.getCalendarById(config.bookingCalendarId);
-  if (!bookingCalendar) {
-    return renderResult(
-      "Calendar unavailable",
-      "Frannie's calendar could not be reached. Please call or email to book."
-    );
-  }
-
   const start = buildDate(params.date, params.event_time);
   const durationMinutes = Number(params.duration);
   const end = new Date(start.getTime() + durationMinutes * 60 * 1000);
@@ -114,31 +118,135 @@ function handleBookingPost(e) {
     );
   }
 
-  const conflicts = getConflicts(start, end, config.blockingCalendarIds);
-  if (conflicts.length) {
+  if (start.getTime() < Date.now()) {
     return renderResult(
-      "That time is already booked",
-      "Please go back and choose another date or time, or call Frannie to check alternatives."
+      "Invalid time",
+      "Please go back and choose a future event date and start time."
     );
   }
 
-  const event = bookingCalendar.createEvent(
-    "PENDING: " + eventTitle(params),
-    start,
-    end,
-    {
-      location: params.location,
-      description: eventDescription(params),
-    }
+  const conflicts = getConflicts(
+    startOfDay(start),
+    startOfNextDay(start),
+    config.blockingCalendarIds
   );
-  event.setColor(CalendarApp.EventColor.YELLOW);
+  const pending = storePendingBooking(params, start, end, conflicts.length);
 
-  sendNotifications(params, start, end, config);
+  cleanupOldPendingBookings();
+  sendManualReviewNotifications(pending, config);
 
   return renderResult(
     "Request received",
-    "Your date is being held as pending. Frannie will confirm details and send a quote within 24 hours."
+    "Your request was received. Frannie will review it before adding anything to the calendar."
   );
+}
+
+function handleBookingConfirmation(token) {
+  if (!isValidToken(token)) {
+    return renderResult("Invalid link", "This confirmation link is not valid.");
+  }
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+
+  try {
+    const pending = getPendingBooking(token);
+
+    if (!pending) {
+      return renderResult(
+        "Request not found",
+        "This booking request may have already been handled or expired."
+      );
+    }
+
+    const config = getBookingConfig();
+    const start = new Date(pending.startIso);
+    const end = new Date(pending.endIso);
+
+    if (!isValidDate(start) || !isValidDate(end) || start >= end) {
+      deletePendingBooking(token);
+      return renderResult(
+        "Invalid request",
+        "This saved booking request had an invalid date or time and was cleared."
+      );
+    }
+
+    const bookingCalendar = CalendarApp.getCalendarById(
+      config.bookingCalendarId
+    );
+
+    if (!bookingCalendar) {
+      return renderResult(
+        "Calendar unavailable",
+        "Frannie's calendar could not be reached. Please check the calendar ID and try again."
+      );
+    }
+
+    const bookingDay = startOfDay(start);
+    const conflicts = getConflicts(
+      bookingDay,
+      startOfNextDay(start),
+      config.blockingCalendarIds
+    );
+
+    if (conflicts.length) {
+      return renderResult(
+        "Date already booked",
+        "The calendar has a conflict on this date. No public booked block was created."
+      );
+    }
+
+    const params = pending.params;
+    const event = bookingCalendar.createAllDayEvent(
+      calendarEventTitle(params),
+      bookingDay,
+      {
+        location: "San Diego, CA",
+        description: calendarEventDescription(params, pending),
+      }
+    );
+    event.setColor(CalendarApp.EventColor.GRAY);
+    deletePendingBooking(token);
+    sendConfirmedNotifications(pending, config, event.getId());
+
+    return renderResult(
+      "Date marked booked",
+      "This booking date is now marked as booked on Frannie's public calendar."
+    );
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function handleBookingDecline(token) {
+  if (!isValidToken(token)) {
+    return renderResult("Invalid link", "This decline link is not valid.");
+  }
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+
+  try {
+    const pending = getPendingBooking(token);
+
+    if (!pending) {
+      return renderResult(
+        "Request not found",
+        "This booking request may have already been handled or expired."
+      );
+    }
+
+    const config = getBookingConfig();
+    deletePendingBooking(token);
+    sendDeclinedNotifications(pending, config);
+
+    return renderResult(
+      "Request declined",
+      "The booking request was cleared and no calendar hold was created."
+    );
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function getBookingConfig() {
@@ -153,6 +261,7 @@ function getBookingConfig() {
     notifyEmail,
     timeZone: getOptionalScriptProperty("TIME_ZONE") || DEFAULT_TIME_ZONE,
     webhookSecret: getOptionalScriptProperty("WEBHOOK_SECRET"),
+    webAppUrl: getOptionalScriptProperty("WEB_APP_URL"),
   };
 }
 
@@ -196,24 +305,45 @@ function extractSubmission(e) {
   const params = Object.assign({}, e && e.parameter ? e.parameter : {});
   const payload = parseJsonPostData(e);
 
+  // Formspark sends webhook payloads as a plain JSON object with the submitted
+  // field names at the top level. The other shapes keep local tests flexible.
   // Some webhook providers wrap form fields under payload.submission.
   if (
     payload &&
     payload.submission &&
     typeof payload.submission === "object"
   ) {
-    return Object.assign(params, payload.submission);
+    return normalizeSubmission(Object.assign(params, payload.submission));
+  }
+
+  if (payload && payload.data && typeof payload.data === "object") {
+    return normalizeSubmission(Object.assign(params, payload.data));
   }
 
   if (payload && typeof payload === "object") {
-    return Object.assign(params, payload);
+    return normalizeSubmission(Object.assign(params, payload));
   }
 
-  return params;
+  return normalizeSubmission(params);
+}
+
+function normalizeSubmission(rawParams) {
+  return Object.keys(rawParams).reduce((params, key) => {
+    let value = rawParams[key];
+
+    if (Array.isArray(value)) {
+      value = value.join(", ");
+    } else if (value && typeof value === "object") {
+      value = JSON.stringify(value);
+    }
+
+    params[key] = String(value || "").trim();
+    return params;
+  }, {});
 }
 
 function isSpamSubmission(params) {
-  return Boolean(params._gotcha || params.website);
+  return Boolean(params._gotcha || params._honeypot || params.website);
 }
 
 function parseJsonPostData(e) {
@@ -235,9 +365,24 @@ function getConflicts(start, end, calendarIds) {
   });
 }
 
+function startOfDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function startOfNextDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+}
+
 function buildDate(date, time) {
-  const parts = date.split("-").map(Number);
-  const timeParts = time.split(":").map(Number);
+  const dateMatch = String(date || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const timeMatch = String(time || "").match(/^([01]\d|2[0-3]):([0-5]\d)$/);
+
+  if (!dateMatch || !timeMatch) {
+    return new Date("invalid");
+  }
+
+  const parts = dateMatch.slice(1).map(Number);
+  const timeParts = timeMatch.slice(1).map(Number);
 
   return new Date(
     parts[0],
@@ -255,36 +400,169 @@ function isValidDate(value) {
 
 function eventTitle(params) {
   const eventType = params.event_type || "Event";
-  return eventType + " for " + params.name;
+  return params.name ? eventType + " for " + params.name : eventType;
 }
 
-function eventDescription(params) {
+function calendarEventTitle(params) {
+  return "Booked";
+}
+
+function storePendingBooking(params, start, end, conflictCount) {
+  const token = Utilities.getUuid().replace(/-/g, "");
+  const pending = {
+    token,
+    params,
+    startIso: start.toISOString(),
+    endIso: end.toISOString(),
+    conflictCount,
+    createdAtIso: new Date().toISOString(),
+  };
+  const storedPending = Object.assign({}, pending, {
+    params: storedPendingParams(params),
+  });
+
+  PropertiesService.getScriptProperties().setProperty(
+    PENDING_BOOKING_PREFIX + token,
+    JSON.stringify(storedPending)
+  );
+
+  return pending;
+}
+
+function storedPendingParams(params) {
+  return {
+    email: params.email,
+    event_type: params.event_type,
+    guests: params.guests,
+  };
+}
+
+function getPendingBooking(token) {
+  const value = PropertiesService.getScriptProperties().getProperty(
+    PENDING_BOOKING_PREFIX + token
+  );
+
+  return value ? JSON.parse(value) : null;
+}
+
+function deletePendingBooking(token) {
+  PropertiesService.getScriptProperties().deleteProperty(
+    PENDING_BOOKING_PREFIX + token
+  );
+}
+
+function cleanupOldPendingBookings() {
+  const properties = PropertiesService.getScriptProperties();
+  const cutoff = Date.now() - PENDING_BOOKING_TTL_DAYS * 24 * 60 * 60 * 1000;
+  const values = properties.getProperties();
+
+  Object.keys(values).forEach((key) => {
+    if (key.indexOf(PENDING_BOOKING_PREFIX) !== 0) {
+      return;
+    }
+
+    try {
+      const pending = JSON.parse(values[key]);
+      const createdAt = new Date(pending.createdAtIso).getTime();
+
+      if (!createdAt || createdAt < cutoff) {
+        properties.deleteProperty(key);
+      }
+    } catch (error) {
+      properties.deleteProperty(key);
+    }
+  });
+}
+
+function isValidToken(token) {
+  return /^[A-Za-z0-9]{20,}$/.test(String(token || ""));
+}
+
+function eventDescription(params, pending) {
   return [
     "Booking request from the website",
+    pending ? "Submitted: " + pending.createdAtIso : "",
     "",
-    "Name: " + params.name,
+    "Name: " + (params.name || "Not stored after initial approval email"),
     "Email: " + params.email,
-    "Phone: " + (params.phone || "Not provided"),
+    "Phone: " + (params.phone || "Not stored after initial approval email"),
     "Event type: " + (params.event_type || "Not provided"),
     "Guest count: " + (params.guests || "Not provided"),
-    "Location: " + params.location,
+    "Location: " + (params.location || "Not stored after initial approval email"),
     "",
     "Message:",
-    params.message || "No message provided",
-  ].join("\n");
+    params.message || "Not stored after initial approval email",
+  ]
+    .filter((line) => line !== "")
+    .join("\n");
 }
 
-function sendNotifications(params, start, end, config) {
+function calendarEventDescription(params, pending) {
+  return [
+    "Website booking date",
+    "Status: Booked",
+    pending ? "Submitted: " + pending.createdAtIso : "",
+    "Event type: " + (params.event_type || "Not provided"),
+    "Guest count: " + (params.guests || "Not provided"),
+    "Customer details are kept in Formspark and Frannie's approval email.",
+  ]
+    .filter((line) => line !== "")
+    .join("\n");
+}
+
+function submissionSummary(pending, config) {
+  const params = pending.params;
+  const start = new Date(pending.startIso);
+  const end = new Date(pending.endIso);
   const when =
     Utilities.formatDate(start, config.timeZone, "EEEE, MMMM d, yyyy h:mm a") +
     " - " +
     Utilities.formatDate(end, config.timeZone, "h:mm a");
 
+  return (
+    eventDescription(params, pending) +
+    "\nWhen: " +
+    when +
+    "\nCurrent calendar conflicts on this date: " +
+    pending.conflictCount
+  );
+}
+
+function actionUrl(action, token, config) {
+  const baseUrl = config.webAppUrl || ScriptApp.getService().getUrl();
+
+  if (!baseUrl) {
+    throw new Error("Missing Apps Script property: WEB_APP_URL");
+  }
+
+  const separator = baseUrl.indexOf("?") === -1 ? "?" : "&";
+
+  return (
+    baseUrl +
+    separator +
+    "action=" +
+    encodeURIComponent(action) +
+    "&token=" +
+    encodeURIComponent(token)
+  );
+}
+
+function sendManualReviewNotifications(pending, config) {
+  const params = pending.params;
+  const confirmUrl = actionUrl("confirm", pending.token, config);
+  const declineUrl = actionUrl("decline", pending.token, config);
+
   MailApp.sendEmail({
     to: config.notifyEmail,
     replyTo: params.email,
-    subject: "New pending booking: " + eventTitle(params),
-    body: eventDescription(params) + "\n\nWhen: " + when,
+    subject: "Confirm booking request: " + eventTitle(params),
+    body:
+      submissionSummary(pending, config) +
+      "\n\nThe calendar will not be updated until you confirm this request." +
+      "\n\nConfirm and add pending calendar hold:\n" +
+      confirmUrl +
+      "\n\nDecline without creating a calendar hold:\n" +
+      declineUrl,
   });
 
   MailApp.sendEmail({
@@ -292,9 +570,65 @@ function sendNotifications(params, start, end, config) {
     subject: "Frannie the Clown booking request received",
     body:
       "Thanks for reaching out to Frannie the Clown!\n\n" +
-      "Your requested time is being held as pending:\n" +
+      "Your booking request was received and is waiting for Frannie's review. " +
+      "No calendar hold has been created yet.\n\n" +
+      "Frannie will confirm details and send a quote within 24 hours.",
+  });
+}
+
+function sendConfirmedNotifications(pending, config, eventId) {
+  const params = pending.params;
+  const when =
+    Utilities.formatDate(
+      new Date(pending.startIso),
+      config.timeZone,
+      "EEEE, MMMM d, yyyy h:mm a"
+    ) +
+    " - " +
+    Utilities.formatDate(new Date(pending.endIso), config.timeZone, "h:mm a");
+
+  MailApp.sendEmail({
+    to: config.notifyEmail,
+    replyTo: params.email,
+    subject: "Date marked booked: " + eventTitle(params),
+    body:
+      eventDescription(params, pending) +
+      "\n\nWhen: " +
+      when +
+      "\nCalendar event ID: " +
+      eventId,
+  });
+
+  MailApp.sendEmail({
+    to: params.email,
+    subject: "Frannie the Clown booking request confirmed",
+    body:
+      "Thanks for reaching out to Frannie the Clown!\n\n" +
+      "Frannie has marked your requested date as booked:\n" +
       when +
       "\n\nFrannie will confirm details and send a quote within 24 hours.",
+  });
+}
+
+function sendDeclinedNotifications(pending, config) {
+  const params = pending.params;
+
+  MailApp.sendEmail({
+    to: config.notifyEmail,
+    replyTo: params.email,
+    subject: "Booking request declined: " + eventTitle(params),
+    body:
+      submissionSummary(pending, config) +
+      "\n\nNo calendar hold was created.",
+  });
+
+  MailApp.sendEmail({
+    to: params.email,
+    subject: "Frannie the Clown booking request update",
+    body:
+      "Thanks for reaching out to Frannie the Clown.\n\n" +
+      "Frannie is not able to place a calendar hold for the requested time. " +
+      "Please reply with another date or time and Frannie will help find an option that works.",
   });
 }
 
