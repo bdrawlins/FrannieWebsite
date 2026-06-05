@@ -16,6 +16,10 @@ function doGet(e) {
     return handleBookingDecline(params.token);
   }
 
+  if (params.action === "availability") {
+    return handleAvailabilityRequest(params);
+  }
+
   return renderResult(
     "Booking webhook is live",
     "This Google Apps Script deployment is reachable. Submit the booking form, then use the emailed confirmation link to create a calendar hold."
@@ -130,6 +134,14 @@ function handleBookingPost(e) {
     startOfNextDay(start),
     config.blockingCalendarIds
   );
+
+  if (conflicts.length) {
+    return renderResult(
+      "Date already booked",
+      "Frannie already has a calendar conflict on this date. Please go back and choose another date, or call Frannie if this date is important."
+    );
+  }
+
   const pending = storePendingBooking(params, start, end, conflicts.length);
 
   cleanupOldPendingBookings();
@@ -249,6 +261,53 @@ function handleBookingDecline(token) {
   }
 }
 
+function handleAvailabilityRequest(params) {
+  const requestedCallback = String(params.callback || "");
+  const callback = isValidJsonpCallback(requestedCallback)
+    ? requestedCallback
+    : "";
+  const payload = getAvailabilityPayload(params);
+  const body = callback
+    ? callback + "(" + JSON.stringify(payload) + ");"
+    : JSON.stringify(payload);
+  const output = ContentService.createTextOutput(body);
+
+  return output.setMimeType(
+    callback ? ContentService.MimeType.JAVASCRIPT : ContentService.MimeType.JSON
+  );
+}
+
+function isValidJsonpCallback(callback) {
+  return /^[A-Za-z_$][0-9A-Za-z_$]*(\.[A-Za-z_$][0-9A-Za-z_$]*)*$/.test(
+    callback
+  );
+}
+
+function getAvailabilityPayload(params) {
+  const config = getBookingConfig();
+  const today = startOfDay(new Date());
+  const requestedStart = parseDateOnly(params.start) || today;
+  const requestedEnd = parseDateOnly(params.end);
+  const start = requestedStart < today ? today : requestedStart;
+  const maxEnd = addDays(start, 370);
+  let end = requestedEnd || addDays(start, 32);
+
+  if (end <= start) {
+    end = addDays(start, 32);
+  }
+
+  if (end > maxEnd) {
+    end = maxEnd;
+  }
+
+  return {
+    start: formatDateOnly(start, config.timeZone),
+    end: formatDateOnly(end, config.timeZone),
+    bookedDates: getBookedDateStrings(start, end, config),
+    generatedAt: new Date().toISOString(),
+  };
+}
+
 function getBookingConfig() {
   const bookingCalendarId = getRequiredScriptProperty("BOOKING_CALENDAR_ID");
   const notifyEmail = getRequiredScriptProperty("NOTIFY_EMAIL");
@@ -365,12 +424,70 @@ function getConflicts(start, end, calendarIds) {
   });
 }
 
+function getBookedDateStrings(start, end, config) {
+  const bookedDates = {};
+
+  config.blockingCalendarIds.forEach((calendarId) => {
+    const calendar = CalendarApp.getCalendarById(calendarId);
+
+    if (!calendar) {
+      return;
+    }
+
+    calendar.getEvents(start, end).forEach((event) => {
+      addBookedEventDates(bookedDates, event, start, end, config.timeZone);
+    });
+  });
+
+  return Object.keys(bookedDates).sort();
+}
+
+function addBookedEventDates(bookedDates, event, rangeStart, rangeEnd, timeZone) {
+  const eventStart = event.getStartTime();
+  const eventEnd = event.getEndTime();
+  const start = eventStart > rangeStart ? eventStart : rangeStart;
+  const end = eventEnd < rangeEnd ? eventEnd : rangeEnd;
+
+  if (end <= start) {
+    return;
+  }
+
+  let day = startOfDay(start);
+  const finalDay = startOfDay(new Date(end.getTime() - 1));
+
+  while (day <= finalDay) {
+    bookedDates[formatDateOnly(day, timeZone)] = true;
+    day = addDays(day, 1);
+  }
+}
+
 function startOfDay(date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
 function startOfNextDay(date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+}
+
+function addDays(date, days) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
+}
+
+function parseDateOnly(value) {
+  const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+  if (!match) {
+    return null;
+  }
+
+  const parts = match.slice(1).map(Number);
+  const date = new Date(parts[0], parts[1] - 1, parts[2]);
+
+  return isValidDate(date) ? date : null;
+}
+
+function formatDateOnly(date, timeZone) {
+  return Utilities.formatDate(date, timeZone, "yyyy-MM-dd");
 }
 
 function buildDate(date, time) {

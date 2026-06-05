@@ -37,6 +37,7 @@ jobs:
           FRANNIE_CONTACT_PHONE_TEL: ${{ vars.FRANNIE_CONTACT_PHONE_TEL }}
           FRANNIE_FACEBOOK_URL: ${{ vars.FRANNIE_FACEBOOK_URL }}
           FRANNIE_YELP_URL: ${{ vars.FRANNIE_YELP_URL }}
+          FRANNIE_APPS_SCRIPT_WEB_APP_URL: ${{ vars.FRANNIE_APPS_SCRIPT_WEB_APP_URL }}
           FRANNIE_BOTPOISON_PUBLIC_KEY: ${{ vars.FRANNIE_BOTPOISON_PUBLIC_KEY }}
 
       - name: Prepare static artifact

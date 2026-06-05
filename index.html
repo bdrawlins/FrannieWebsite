@@ -339,7 +339,82 @@
                         </div>
                         <div>
                             <label for="date">Event Date</label>
-                            <input type="date" id="date" name="date" required />
+                            <div class="date-picker" data-date-picker>
+                                <input
+                                    type="hidden"
+                                    id="date"
+                                    name="date"
+                                    data-date-input
+                                />
+                                <button
+                                    type="button"
+                                    class="date-picker-trigger"
+                                    data-date-picker-trigger
+                                    aria-haspopup="dialog"
+                                    aria-expanded="false"
+                                >
+                                    <span data-date-picker-label
+                                        >Select a date</span
+                                    >
+                                </button>
+                                <div
+                                    class="date-picker-panel"
+                                    data-date-picker-panel
+                                    role="dialog"
+                                    aria-label="Choose an event date"
+                                    hidden
+                                >
+                                    <div class="date-picker-header">
+                                        <button
+                                            type="button"
+                                            class="date-picker-nav"
+                                            data-date-picker-prev
+                                            aria-label="Previous month"
+                                        >
+                                            &lsaquo;
+                                        </button>
+                                        <div
+                                            class="date-picker-month"
+                                            data-date-picker-month
+                                            aria-live="polite"
+                                        ></div>
+                                        <button
+                                            type="button"
+                                            class="date-picker-nav"
+                                            data-date-picker-next
+                                            aria-label="Next month"
+                                        >
+                                            &rsaquo;
+                                        </button>
+                                    </div>
+                                    <div
+                                        class="date-picker-weekdays"
+                                        aria-hidden="true"
+                                    >
+                                        <span>Sun</span>
+                                        <span>Mon</span>
+                                        <span>Tue</span>
+                                        <span>Wed</span>
+                                        <span>Thu</span>
+                                        <span>Fri</span>
+                                        <span>Sat</span>
+                                    </div>
+                                    <div
+                                        class="date-picker-grid"
+                                        data-date-picker-grid
+                                    ></div>
+                                    <p
+                                        class="date-picker-status"
+                                        data-date-picker-status
+                                        aria-live="polite"
+                                    ></p>
+                                </div>
+                            </div>
+                            <p
+                                class="field-message"
+                                data-date-message
+                                aria-live="polite"
+                            ></p>
                         </div>
                     </div>
 
@@ -811,6 +886,345 @@
                         );
                     });
                 }
+            })();
+        </script>
+        <script>
+            (() => {
+                const config = window.FRANNIE_SITE_CONFIG || {};
+                const bookingForm = document.querySelector("[data-booking-form]");
+                const picker = document.querySelector("[data-date-picker]");
+
+                if (!bookingForm || !picker) {
+                    return;
+                }
+
+                const dateInput = picker.querySelector("[data-date-input]");
+                const trigger = picker.querySelector(
+                    "[data-date-picker-trigger]",
+                );
+                const triggerLabel = picker.querySelector(
+                    "[data-date-picker-label]",
+                );
+                const panel = picker.querySelector("[data-date-picker-panel]");
+                const monthLabel = picker.querySelector(
+                    "[data-date-picker-month]",
+                );
+                const grid = picker.querySelector("[data-date-picker-grid]");
+                const status = picker.querySelector(
+                    "[data-date-picker-status]",
+                );
+                const message = document.querySelector("[data-date-message]");
+                const previous = picker.querySelector("[data-date-picker-prev]");
+                const next = picker.querySelector("[data-date-picker-next]");
+                const availabilityUrl = config.APPS_SCRIPT_WEB_APP_URL || "";
+                const today = new Date();
+                const todayDate = new Date(
+                    today.getFullYear(),
+                    today.getMonth(),
+                    today.getDate(),
+                );
+                const bookedDates = new Set();
+                const loadedMonths = new Set();
+                const loadingMonths = new Set();
+                const failedMonths = new Set();
+                let visibleMonth = new Date(
+                    todayDate.getFullYear(),
+                    todayDate.getMonth(),
+                    1,
+                );
+
+                const formatDateIso = (date) =>
+                    [
+                        date.getFullYear(),
+                        String(date.getMonth() + 1).padStart(2, "0"),
+                        String(date.getDate()).padStart(2, "0"),
+                    ].join("-");
+                const parseDateIso = (value) => {
+                    const match = String(value || "").match(
+                        /^(\d{4})-(\d{2})-(\d{2})$/,
+                    );
+
+                    if (!match) {
+                        return null;
+                    }
+
+                    return new Date(
+                        Number(match[1]),
+                        Number(match[2]) - 1,
+                        Number(match[3]),
+                    );
+                };
+                const addMonths = (date, months) =>
+                    new Date(date.getFullYear(), date.getMonth() + months, 1);
+                const monthKey = (date) =>
+                    `${date.getFullYear()}-${String(
+                        date.getMonth() + 1,
+                    ).padStart(2, "0")}`;
+                const formatSelectedLabel = (value) => {
+                    const date = parseDateIso(value);
+
+                    if (!date) {
+                        return "Select a date";
+                    }
+
+                    return new Intl.DateTimeFormat("en-US", {
+                        weekday: "short",
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                    }).format(date);
+                };
+                const setMessage = (text, isError) => {
+                    message.textContent = text;
+                    message.classList.toggle("is-error", Boolean(isError));
+                };
+                const setPickerOpen = (isOpen) => {
+                    panel.hidden = !isOpen;
+                    trigger.setAttribute("aria-expanded", String(isOpen));
+
+                    if (isOpen) {
+                        loadVisibleMonth();
+                    }
+                };
+                const validateDateSelection = () => {
+                    const value = dateInput.value;
+
+                    if (!value) {
+                        setMessage("Please choose an available event date.", true);
+                        return false;
+                    }
+
+                    if (bookedDates.has(value)) {
+                        dateInput.value = "";
+                        triggerLabel.textContent = "Select a date";
+                        setMessage(
+                            "That date is already booked. Please choose another date or call Frannie.",
+                            true,
+                        );
+                        return false;
+                    }
+
+                    const selectedDate = parseDateIso(value);
+                    const selectedMonth = selectedDate
+                        ? monthKey(selectedDate)
+                        : "";
+
+                    if (!selectedDate || selectedDate < todayDate) {
+                        setMessage("Please choose a future event date.", true);
+                        return false;
+                    }
+
+                    if (!loadedMonths.has(selectedMonth)) {
+                        setMessage(
+                            "Availability is still loading. Please try again in a moment or call Frannie.",
+                            true,
+                        );
+                        return false;
+                    }
+
+                    setMessage("", false);
+                    return true;
+                };
+                const loadAvailability = (start, end) =>
+                    new Promise((resolve, reject) => {
+                        const callbackName = `frannieAvailability_${Date.now()}_${Math.random()
+                            .toString(36)
+                            .slice(2)}`;
+                        const params = new URLSearchParams({
+                            action: "availability",
+                            start: formatDateIso(start),
+                            end: formatDateIso(end),
+                            callback: callbackName,
+                        });
+                        const separator = availabilityUrl.includes("?")
+                            ? "&"
+                            : "?";
+                        const script = document.createElement("script");
+                        let timeoutId;
+                        const cleanup = () => {
+                            window.clearTimeout(timeoutId);
+                            delete window[callbackName];
+                            script.remove();
+                        };
+
+                        window[callbackName] = (payload) => {
+                            cleanup();
+                            resolve(payload || {});
+                        };
+                        script.onerror = () => {
+                            cleanup();
+                            reject(new Error("Availability request failed"));
+                        };
+                        timeoutId = window.setTimeout(() => {
+                            cleanup();
+                            reject(new Error("Availability request timed out"));
+                        }, 10000);
+                        script.src = `${availabilityUrl}${separator}${params}`;
+                        document.head.append(script);
+                    });
+                const loadVisibleMonth = () => {
+                    const key = monthKey(visibleMonth);
+
+                    if (!availabilityUrl) {
+                        status.textContent =
+                            "Online availability is unavailable. Please call Frannie to book.";
+                        renderCalendar();
+                        return;
+                    }
+
+                    if (loadedMonths.has(key) || loadingMonths.has(key)) {
+                        renderCalendar();
+                        return;
+                    }
+
+                    loadingMonths.add(key);
+                    failedMonths.delete(key);
+                    status.textContent = "Checking availability...";
+                    renderCalendar();
+
+                    loadAvailability(visibleMonth, addMonths(visibleMonth, 1))
+                        .then((payload) => {
+                            (payload.bookedDates || []).forEach((date) =>
+                                bookedDates.add(date),
+                            );
+                            loadedMonths.add(key);
+                            status.textContent =
+                                "Gray dates are already booked. Call Frannie if you need one of them.";
+                        })
+                        .catch(() => {
+                            failedMonths.add(key);
+                            status.textContent =
+                                "Availability could not load. Please call Frannie to check this month.";
+                        })
+                        .finally(() => {
+                            loadingMonths.delete(key);
+                            renderCalendar();
+
+                            if (dateInput.value) {
+                                validateDateSelection();
+                            }
+                        });
+                };
+                const renderCalendar = () => {
+                    const key = monthKey(visibleMonth);
+                    const isLoaded = loadedMonths.has(key);
+                    const isLoading = loadingMonths.has(key);
+                    const hasFailed = failedMonths.has(key);
+                    const firstDay = new Date(
+                        visibleMonth.getFullYear(),
+                        visibleMonth.getMonth(),
+                        1,
+                    );
+                    const daysInMonth = new Date(
+                        visibleMonth.getFullYear(),
+                        visibleMonth.getMonth() + 1,
+                        0,
+                    ).getDate();
+
+                    monthLabel.textContent = new Intl.DateTimeFormat("en-US", {
+                        month: "long",
+                        year: "numeric",
+                    }).format(visibleMonth);
+                    grid.textContent = "";
+
+                    for (let index = 0; index < firstDay.getDay(); index += 1) {
+                        const spacer = document.createElement("span");
+
+                        spacer.className = "date-picker-day is-outside";
+                        grid.append(spacer);
+                    }
+
+                    for (let day = 1; day <= daysInMonth; day += 1) {
+                        const date = new Date(
+                            visibleMonth.getFullYear(),
+                            visibleMonth.getMonth(),
+                            day,
+                        );
+                        const value = formatDateIso(date);
+                        const isPast = date < todayDate;
+                        const isBooked = bookedDates.has(value);
+                        const isUnavailable =
+                            !isLoaded || isLoading || hasFailed;
+                        const button = document.createElement("button");
+
+                        button.type = "button";
+                        button.className = "date-picker-day";
+                        button.textContent = String(day);
+                        button.disabled =
+                            isPast || isBooked || isUnavailable;
+                        button.dataset.date = value;
+
+                        if (dateInput.value === value) {
+                            button.classList.add("is-selected");
+                        }
+
+                        if (isBooked) {
+                            button.classList.add("is-booked");
+                            button.title =
+                                "Already booked. Please call Frannie if this date is important.";
+                            button.setAttribute(
+                                "aria-label",
+                                `${formatSelectedLabel(value)} is already booked`,
+                            );
+                        } else if (isUnavailable) {
+                            button.classList.add("is-unavailable");
+                            button.title = "Availability is not loaded yet.";
+                        } else {
+                            button.setAttribute(
+                                "aria-label",
+                                `Choose ${formatSelectedLabel(value)}`,
+                            );
+                        }
+
+                        button.addEventListener("click", () => {
+                            dateInput.value = value;
+                            triggerLabel.textContent =
+                                formatSelectedLabel(value);
+                            setMessage("", false);
+                            setPickerOpen(false);
+                            renderCalendar();
+                        });
+                        grid.append(button);
+                    }
+                };
+
+                trigger.addEventListener("click", () => {
+                    setPickerOpen(panel.hidden);
+                });
+                previous.addEventListener("click", () => {
+                    visibleMonth = addMonths(visibleMonth, -1);
+                    loadVisibleMonth();
+                });
+                next.addEventListener("click", () => {
+                    visibleMonth = addMonths(visibleMonth, 1);
+                    loadVisibleMonth();
+                });
+                document.addEventListener("click", (event) => {
+                    if (!picker.contains(event.target)) {
+                        setPickerOpen(false);
+                    }
+                });
+                document.addEventListener("keydown", (event) => {
+                    if (event.key === "Escape") {
+                        setPickerOpen(false);
+                    }
+                });
+                bookingForm.addEventListener(
+                    "submit",
+                    (event) => {
+                        if (!validateDateSelection()) {
+                            event.preventDefault();
+                            event.stopImmediatePropagation();
+                            setPickerOpen(true);
+                            trigger.focus();
+                        }
+                    },
+                    true,
+                );
+
+                triggerLabel.textContent = formatSelectedLabel(dateInput.value);
+                loadVisibleMonth();
+                renderCalendar();
             })();
         </script>
         <script>

@@ -108,6 +108,7 @@ FRANNIE_CONTACT_PHONE_DISPLAY
 FRANNIE_CONTACT_PHONE_TEL
 FRANNIE_FACEBOOK_URL
 FRANNIE_YELP_URL
+FRANNIE_APPS_SCRIPT_WEB_APP_URL
 ```
 
 These are repository variables, not secrets. The deployed browser receives them
@@ -122,8 +123,8 @@ FRANNIE_BOTPOISON_PUBLIC_KEY
 This is safe to expose in the browser. Keep the Botpoison secret key only in
 Formspark's spam protection settings.
 
-Do not add Apps Script-only values to the Pages workflow. Set those directly in
-Apps Script Script Properties and Formspark settings:
+Do not add Apps Script-only private values to the Pages workflow. Set those
+directly in Apps Script Script Properties and Formspark settings:
 
 ```text
 BOOKING_CALENDAR_ID
@@ -184,13 +185,15 @@ Setup:
 8. Set "Execute as" to yourself.
 9. Set access to "Anyone".
 10. Copy the Web App `/exec` URL.
-11. In Formspark, open the booking form settings.
-12. Set the Webhook URL to the Apps Script `/exec` URL. You can keep that URL in
-   `.env` as `FRANNIE_APPS_SCRIPT_WEB_APP_URL` for reference. Also add the same
-   URL as the Apps Script `WEB_APP_URL` property if confirmation links do not
+11. Save that URL as `FRANNIE_APPS_SCRIPT_WEB_APP_URL` in `.env` and as the
+   matching GitHub Pages repository variable. The website uses it to load
+   unavailable booking dates before the form can submit.
+12. In Formspark, open the booking form settings.
+13. Set the Webhook URL to the Apps Script `/exec` URL. Also add the same URL as
+   the Apps Script `WEB_APP_URL` property if confirmation links do not
    appear correctly in email.
-13. Set Custom honeypot to `website`.
-14. To protect the submission quota more strongly, enable Botpoison in
+14. Set Custom honeypot to `website`.
+15. To protect the submission quota more strongly, enable Botpoison in
     Formspark's Spam Protection settings. Put the Botpoison public key in
     `FRANNIE_BOTPOISON_PUBLIC_KEY` and the Botpoison secret key in Formspark
     only.
@@ -240,6 +243,11 @@ Troubleshooting:
   URL points at the current Apps Script `/exec` URL.
 - If approval emails arrive but their confirm links fail, set `WEB_APP_URL` in
   Apps Script Script Properties to the current `/exec` deployment URL.
+- If confirmed events appear in Google Calendar but not on the website, open the
+  deployed `site-config.js` and verify `PUBLIC_CALENDAR_ID` matches
+  `BOOKING_CALENDAR_ID`. Hidden whitespace in GitHub repository variables can
+  make the embed load the wrong calendar ID; `make config` trims values when it
+  generates the browser config.
 - After editing `google-calendar-booking.gs`, create a new Apps Script
   deployment version or update the existing deployment. Saving the file alone
   does not update the live `/exec` URL.

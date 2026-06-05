@@ -513,6 +513,127 @@ h2 {
     border-color: var(--teal);
 }
 
+.date-picker {
+    position: relative;
+}
+
+.date-picker-trigger {
+    width: 100%;
+    min-height: 46px;
+    border: 2px solid rgba(26, 34, 64, 0.35);
+    border-radius: 8px;
+    background: #fffdf9;
+    color: var(--navy);
+    font: inherit;
+    padding: 0.7rem 0.8rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.date-picker-trigger:focus {
+    outline: 3px solid rgba(43, 191, 164, 0.28);
+    border-color: var(--teal);
+}
+
+.date-picker-panel {
+    position: absolute;
+    top: calc(100% + 0.45rem);
+    left: 0;
+    z-index: 20;
+    width: min(100vw - 2rem, 340px);
+    padding: 0.85rem;
+    border: 3px solid var(--navy);
+    border-radius: 8px;
+    background: var(--white);
+    box-shadow: var(--shadow);
+}
+
+.date-picker-header,
+.date-picker-weekdays,
+.date-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.35rem;
+}
+
+.date-picker-header {
+    grid-template-columns: 36px 1fr 36px;
+    align-items: center;
+    margin-bottom: 0.7rem;
+}
+
+.date-picker-month {
+    font-weight: 800;
+    text-align: center;
+}
+
+.date-picker-nav,
+.date-picker-day {
+    border: 2px solid rgba(26, 34, 64, 0.22);
+    border-radius: 8px;
+    background: #fffdf9;
+    color: var(--navy);
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.date-picker-nav {
+    min-height: 36px;
+}
+
+.date-picker-weekdays {
+    margin-bottom: 0.35rem;
+    color: rgba(26, 34, 64, 0.58);
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.date-picker-day {
+    aspect-ratio: 1;
+    min-width: 0;
+    padding: 0;
+}
+
+.date-picker-day:hover:not(:disabled),
+.date-picker-nav:hover {
+    border-color: var(--teal);
+    background: rgba(43, 191, 164, 0.12);
+}
+
+.date-picker-day.is-selected {
+    border-color: var(--navy);
+    background: var(--yellow);
+    box-shadow: 2px 2px 0 var(--navy);
+}
+
+.date-picker-day.is-booked,
+.date-picker-day.is-unavailable,
+.date-picker-day:disabled {
+    background: #e7e2d8;
+    color: rgba(26, 34, 64, 0.38);
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+.date-picker-day.is-outside {
+    visibility: hidden;
+}
+
+.date-picker-status,
+.field-message {
+    margin: 0.45rem 0 0;
+    color: rgba(26, 34, 64, 0.68);
+    font-size: 0.86rem;
+}
+
+.field-message.is-error {
+    color: #9e2b25;
+    font-weight: 800;
+}
+
 .booking-form textarea {
     min-height: 130px;
     resize: vertical;

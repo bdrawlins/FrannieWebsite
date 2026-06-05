@@ -25,6 +25,7 @@ REQUIRED_PUBLIC_KEYS = [
 ]
 
 OPTIONAL_PUBLIC_KEYS = [
+    "FRANNIE_APPS_SCRIPT_WEB_APP_URL",
     "FRANNIE_BOTPOISON_PUBLIC_KEY",
 ]
 
@@ -62,10 +63,17 @@ def parse_env_file(path: Path) -> dict[str, str]:
     return values
 
 
+def clean_config_value(value: str) -> str:
+    return value.strip()
+
+
 def main() -> None:
     env_values = parse_env_file(ENV_PATH)
     public_keys = REQUIRED_PUBLIC_KEYS + OPTIONAL_PUBLIC_KEYS
-    merged = {key: os.environ.get(key, env_values.get(key, "")) for key in public_keys}
+    merged = {
+        key: clean_config_value(os.environ.get(key, env_values.get(key, "")))
+        for key in public_keys
+    }
     missing = [key for key in REQUIRED_PUBLIC_KEYS if not merged[key]]
 
     if missing:
