@@ -43,7 +43,7 @@ jobs:
       - name: Prepare static artifact
         run: |
           mkdir -p public
-          cp index.html index.css site-config.js public/
+          cp index.html about.html index.css site-config.js public/
           cp -R assets public/assets
 
       - name: Configure Pages

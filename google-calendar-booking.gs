@@ -16,6 +16,14 @@ function doGet(e) {
     return handleBookingDecline(params.token);
   }
 
+  if (params.action === "manual") {
+    return handleManualBookingForm(params);
+  }
+
+  if (params.action === "add_manual") {
+    return handleManualBookingCreate(params);
+  }
+
   if (params.action === "availability") {
     return handleAvailabilityRequest(params);
   }
@@ -261,6 +269,84 @@ function handleBookingDecline(token) {
   }
 }
 
+function handleManualBookingForm(params) {
+  const config = getBookingConfig();
+
+  if (!isAuthorizedManualBooking(params, config)) {
+    return renderResult(
+      "Manual booking unavailable",
+      "This private phone booking helper is not configured or the link is not valid."
+    );
+  }
+
+  return renderManualBookingForm(config, params.manual_key);
+}
+
+function handleManualBookingCreate(params) {
+  const config = getBookingConfig();
+
+  if (!isAuthorizedManualBooking(params, config)) {
+    return renderResult(
+      "Manual booking unavailable",
+      "This private phone booking helper is not configured or the link is not valid."
+    );
+  }
+
+  const bookingDay = parseDateOnly(params.date);
+
+  if (!bookingDay || bookingDay < startOfDay(new Date())) {
+    return renderResult(
+      "Invalid date",
+      "Please choose today or a future date for the phone booking hold."
+    );
+  }
+
+  const conflicts = getConflicts(
+    bookingDay,
+    startOfNextDay(bookingDay),
+    config.blockingCalendarIds
+  );
+
+  if (conflicts.length) {
+    return renderResult(
+      "Date already booked",
+      "That date already has a calendar conflict, so no new phone booking hold was created."
+    );
+  }
+
+  const bookingCalendar = CalendarApp.getCalendarById(config.bookingCalendarId);
+
+  if (!bookingCalendar) {
+    return renderResult(
+      "Calendar unavailable",
+      "Frannie's calendar could not be reached. Please check the calendar ID and try again."
+    );
+  }
+
+  const event = bookingCalendar.createAllDayEvent("Booked", bookingDay, {
+    location: "San Diego, CA",
+    description: manualBookingDescription(params),
+  });
+  event.setColor(CalendarApp.EventColor.GRAY);
+
+  MailApp.sendEmail({
+    to: config.notifyEmail,
+    subject: "Phone booking date marked booked",
+    body:
+      "A phone booking hold was added to the public booking calendar.\n\nDate: " +
+      formatDateOnly(bookingDay, config.timeZone) +
+      "\nEvent type: " +
+      (params.event_type || "Not provided") +
+      "\nCalendar event ID: " +
+      event.getId(),
+  });
+
+  return renderResult(
+    "Phone booking added",
+    "This date is now marked as booked on Frannie's public calendar."
+  );
+}
+
 function handleAvailabilityRequest(params) {
   const requestedCallback = String(params.callback || "");
   const callback = isValidJsonpCallback(requestedCallback)
@@ -303,7 +389,7 @@ function getAvailabilityPayload(params) {
   return {
     start: formatDateOnly(start, config.timeZone),
     end: formatDateOnly(end, config.timeZone),
-    bookedDates: getBookedDateStrings(start, end, config),
+    bookedDates: getPublicBookedDateStrings(start, end, config),
     generatedAt: new Date().toISOString(),
   };
 }
@@ -320,6 +406,7 @@ function getBookingConfig() {
     notifyEmail,
     timeZone: getOptionalScriptProperty("TIME_ZONE") || DEFAULT_TIME_ZONE,
     webhookSecret: getOptionalScriptProperty("WEBHOOK_SECRET"),
+    manualBookingKey: getOptionalScriptProperty("MANUAL_BOOKING_KEY"),
     webAppUrl: getOptionalScriptProperty("WEB_APP_URL"),
   };
 }
@@ -358,6 +445,12 @@ function isAuthorizedWebhook(e, config) {
 
   const params = e && e.parameter ? e.parameter : {};
   return params.booking_key === config.webhookSecret;
+}
+
+function isAuthorizedManualBooking(params, config) {
+  return Boolean(
+    config.manualBookingKey && params.manual_key === config.manualBookingKey
+  );
 }
 
 function extractSubmission(e) {
@@ -440,6 +533,13 @@ function getBookedDateStrings(start, end, config) {
   });
 
   return Object.keys(bookedDates).sort();
+}
+
+function getPublicBookedDateStrings(start, end, config) {
+  return getBookedDateStrings(start, end, {
+    blockingCalendarIds: [config.bookingCalendarId],
+    timeZone: config.timeZone,
+  });
 }
 
 function addBookedEventDates(bookedDates, event, rangeStart, rangeEnd, timeZone) {
@@ -605,7 +705,8 @@ function eventDescription(params, pending) {
     "Phone: " + (params.phone || "Not stored after initial approval email"),
     "Event type: " + (params.event_type || "Not provided"),
     "Guest count: " + (params.guests || "Not provided"),
-    "Location: " + (params.location || "Not stored after initial approval email"),
+    "Cross streets: " +
+      (params.location || "Not stored after initial approval email"),
     "",
     "Message:",
     params.message || "Not stored after initial approval email",
@@ -625,6 +726,16 @@ function calendarEventDescription(params, pending) {
   ]
     .filter((line) => line !== "")
     .join("\n");
+}
+
+function manualBookingDescription(params) {
+  return [
+    "Phone booking date",
+    "Status: Booked",
+    "Added: " + new Date().toISOString(),
+    "Event type: " + (params.event_type || "Not provided"),
+    "Customer details are kept outside the public calendar.",
+  ].join("\n");
 }
 
 function submissionSummary(pending, config) {
@@ -772,6 +883,58 @@ function renderResult(title, message) {
 
   return HtmlService.createHtmlOutput(html)
     .setTitle(title)
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+function renderManualBookingForm(config, manualKey) {
+  const actionUrl = config.webAppUrl || ScriptApp.getService().getUrl();
+  const today = formatDateOnly(startOfDay(new Date()), config.timeZone);
+  const html =
+    "<!doctype html>" +
+    '<html lang="en">' +
+    "<head>" +
+    '<meta charset="utf-8">' +
+    '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+    "<title>Add Phone Booking</title>" +
+    "<style>" +
+    "body{font-family:Arial,sans-serif;background:#fdf8f0;color:#1a2240;margin:0;padding:1.25rem;line-height:1.5}" +
+    "main{max-width:560px;margin:6vh auto;background:white;border:3px solid #1a2240;border-radius:14px;box-shadow:4px 4px 0 #1a2240;padding:1.5rem}" +
+    "h1{margin-top:0;color:#1a2240}" +
+    "label{display:block;font-weight:700;margin:.9rem 0 .35rem}" +
+    "input,select,button{width:100%;min-height:46px;border:2px solid #1a2240;border-radius:8px;font:inherit;padding:.65rem}" +
+    "button{margin-top:1rem;background:#f9c846;color:#1a2240;font-weight:700;cursor:pointer;box-shadow:3px 3px 0 #1a2240}" +
+    "p{color:rgba(26,34,64,.72)}" +
+    "</style>" +
+    "</head>" +
+    "<body><main>" +
+    "<h1>Add Phone Booking</h1>" +
+    "<p>Use this after a phone call to block one date on the public booking calendar. Do not enter customer details here.</p>" +
+    '<form method="get" action="' +
+    escapeHtml(actionUrl) +
+    '">' +
+    '<input type="hidden" name="action" value="add_manual">' +
+    '<input type="hidden" name="manual_key" value="' +
+    escapeHtml(manualKey) +
+    '">' +
+    '<label for="date">Booking date</label>' +
+    '<input id="date" name="date" type="date" min="' +
+    escapeHtml(today) +
+    '" required>' +
+    '<label for="event_type">Event type</label>' +
+    '<select id="event_type" name="event_type">' +
+    '<option value="">Not provided</option>' +
+    "<option>Birthday Party</option>" +
+    "<option>Corporate Event</option>" +
+    "<option>School / Library Show</option>" +
+    "<option>Festival / Fair</option>" +
+    "<option>Other</option>" +
+    "</select>" +
+    "<button type=\"submit\">Mark Date Booked</button>" +
+    "</form>" +
+    "</main></body></html>";
+
+  return HtmlService.createHtmlOutput(html)
+    .setTitle("Add Phone Booking")
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 

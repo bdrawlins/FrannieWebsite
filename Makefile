@@ -13,6 +13,7 @@ check:
 	test -f .env.example
 	test -f .github/workflows/deploy-pages.yml
 	test -f index.html
+	test -f about.html
 	test -f index.css
 	test -f scripts/build_site_config.py
 	test -f google-calendar-booking.gs
@@ -27,7 +28,7 @@ check:
 	test -f assets/happycustomer3.jpeg
 	test -f assets/happycustomer4.jpg
 	test -f assets/happycustomer5.jpeg
-	@if rg -n "Photo Coming Soon|Goes Here|Replace|YOUR_|href=\"#\"|frannie@example|123-4567|2025|TODO" index.html index.css README.md; then \
+	@if rg -n "Photo Coming Soon|Goes Here|Replace|YOUR_|href=\"#\"|frannie@example|123-4567|2025|TODO" index.html about.html index.css README.md; then \
 		echo "Placeholder-like text found"; \
 		exit 1; \
 	fi

@@ -28,18 +28,29 @@
 
         <link rel="stylesheet" href="index.css?v=20260603-3" />
     </head>
-    <body>
+    <body class="home-page">
         <!-- ── Nav ──────────────────────────────────────────── -->
         <nav>
             <a href="#hero" class="nav-logo">Frannie the Clown</a>
             <ul class="nav-links">
-                <li><a href="#services">Services</a></li>
-                <li><a href="#scheduling">Availability</a></li>
-                <li><a href="#booking">Book</a></li>
-                <li><a href="#testimonials">Reviews</a></li>
-                <li><a href="#gallery">Gallery</a></li>
+                <li><a href="about.html">About</a></li>
             </ul>
+            <a
+                class="nav-call"
+                href="#booking"
+                data-phone-link
+                data-phone-format="nav"
+                >Call to Book</a
+            >
         </nav>
+
+        <aside class="home-side-nav" aria-label="Home page sections">
+            <a href="#services">Services</a>
+            <a href="#scheduling">Availability</a>
+            <a href="#booking">Book</a>
+            <a href="#testimonials">Reviews</a>
+            <a href="#gallery">Gallery</a>
+        </aside>
 
         <!-- ── Hero ─────────────────────────────────────────── -->
         <div id="hero">
@@ -47,7 +58,7 @@
             <div class="hero-inner">
                 <div class="hero-text">
                     <p class="eyebrow">
-                        ✨ Professional Clown &amp; Entertainer
+                        Professional Clown &amp; Entertainer
                     </p>
                     <h1>
                         Hi, I'm <span>Frannie!</span><br /> Let's Have Fun!
@@ -57,8 +68,24 @@
                         more! Bringing smiles and wonderful memories all around
                         San Diego, CA and beyond.
                     </p>
-                    <a href="#booking" class="btn btn-primary">Book Frannie</a>
-                    <a href="#services" class="btn btn-outline">See Services</a>
+                    <div class="hero-actions">
+                        <a
+                            href="#booking"
+                            class="btn btn-primary"
+                            data-phone-link
+                            data-phone-format="hero"
+                            >Call Frannie to Book</a
+                        >
+                        <a href="#booking" class="btn btn-light"
+                            >Request Online</a
+                        >
+                        <a href="#services" class="btn btn-outline"
+                            >See Services</a
+                        >
+                    </div>
+                    <p class="hero-call-note">
+                        Phone is the fastest way to book.
+                    </p>
                 </div>
                 <div class="hero-photo">
                     <img
@@ -72,16 +99,16 @@
         <!-- ── Services ─────────────────────────────────────── -->
         <section id="services">
             <p class="section-label">What I Offer</p>
-            <h2>Services &amp; Packages</h2>
+            <h2>Services</h2>
             <div class="divider"></div>
             <div class="cards">
                 <div class="card">
                     <div class="card-icon">🎂</div>
                     <h3>Birthday Parties</h3>
                     <p>
-                        Full 60- or 90-minute birthday shows with games, balloon
+                        Full birthday shows with games, balloon
                         animals, face painting, and plenty of laughs for kids of
-                        all ages.
+                        all ages. 2 hours minimum, great for 10 or more kids.
                     </p>
                 </div>
 
@@ -95,11 +122,11 @@
                 </div>
 
                 <div class="card">
-                    <div class="card-icon">🏫</div>
-                    <h3>School &amp; Library Shows</h3>
+                    <div class="card-icon">✨</div>
+                    <h3>Holiday Shows</h3>
                     <p>
-                        Interactive educational performances tailored to your
-                        curriculum theme. Ages pre-K through elementary.
+                        Wonderful seasonal themes for Christmas, Easter, Halloween, and other special occasions.
+                        See the Easter Bunny, Mrs. Claus, the Elf, and more!
                     </p>
                 </div>
 
@@ -212,9 +239,9 @@
             <div class="booking-grid">
                 <div class="booking-info">
                     <p>
-                        Ready to bring the fun? Fill out the form and I'll get
-                        back to you within 24 hours to confirm details and send
-                        a quote.
+                        Ready to bring the fun? Calling is Frannie's favorite
+                        way to book. If you prefer the form, send the details
+                        here and she'll follow up to confirm.
                     </p>
 
                     <div class="contact-detail">
@@ -222,7 +249,12 @@
                     </div>
                     <div class="contact-detail">
                         <span class="icon">📞</span>
-                        <a href="#booking" data-phone-link>Phone</a>
+                        <a
+                            href="#booking"
+                            data-phone-link
+                            data-phone-format="booking"
+                            >Phone</a
+                        >
                     </div>
                     <div class="contact-detail">
                         <span class="icon">✉️</span>
@@ -265,9 +297,19 @@
                     </div>
 
                     <p class="party-checklist-title">Essential Party Checklist!</p>
+                    <p class="booking-calendar-note">
+                        The public calendar shows online holds and phone
+                        bookings Frannie has added.
+                        If a date looks close,
+                        call her first.
+
+                        <b>In the case that Frannie is unavailable, we will find you
+                            a fantastic entertainer in her network that can accommodate.
+                        </b>
+                    </p>
                     <div class="party-checklist" aria-label="Helpful booking details">
                         <span>Date</span>
-                        <span>Location</span>
+                        <span>Cross Streets</span>
                         <span>Phone Number</span>
                         <span>Type of Event</span>
                     </div>
@@ -430,10 +472,13 @@
                         <div>
                             <label for="duration">Duration</label>
                             <select id="duration" name="duration" required>
-                                <option value="60">1 hour</option>
-                                <option value="90" selected>1.5 hours</option>
-                                <option value="120">2 hours</option>
+                                <option value="120" selected>2 hours</option>
+                                <option value="150">2.5 hours</option>
                                 <option value="180">3 hours</option>
+                                <option value="210">3.5 hours</option>
+                                <option value="240">4 hours</option>
+                                <option value="270">4.5 hours</option>
+                                <option value="300">5 hours</option>
                             </select>
                         </div>
                     </div>
@@ -443,8 +488,8 @@
                         <select id="event-type" name="event_type">
                             <option value="">— Select —</option>
                             <option>Birthday Party</option>
-                            <option>Corporate Event</option>
-                            <option>School / Library Show</option>
+                            <option>Holiday Event</option>
+                            <option>Team Celebration</option>
                             <option>Festival / Fair</option>
                             <option>Other</option>
                         </select>
@@ -462,12 +507,12 @@
                     </div>
 
                     <div>
-                        <label for="location">Event Location</label>
+                        <label for="location">Event Cross Streets</label>
                         <input
                             type="text"
                             id="location"
                             name="location"
-                            placeholder="Venue name or neighborhood"
+                            placeholder="e.g. Adams Ave & Broadway"
                             required
                         />
                     </div>
@@ -477,7 +522,7 @@
                         <textarea
                             id="message"
                             name="message"
-                            placeholder="Ages of kids, venue, special requests..."
+                            placeholder="Location & venue details, ages of kids,special requests..."
                         ></textarea>
                     </div>
 
@@ -499,36 +544,81 @@
                 <h2>What People Are Saying</h2>
                 <div class="divider"></div>
 
-                <div class="testimonial-grid">
-                    <div class="testimonial">
-                        <div class="stars">★★★★★</div>
-                        <blockquote>
-                            "Frannie made my daughter's 7th birthday absolutely
-                            magical. Every kid was glued to the show the entire
-                            time!"
-                        </blockquote>
-                        <cite>— Sarah M., San Diego CA</cite>
+                <div class="review-summary">
+                    <div>
+                        <p class="review-score">5.0</p>
+                        <p class="review-source">72 Yelp reviews</p>
                     </div>
+                    <p>
+                        Showing verified public Yelp highlights. Visit Yelp for the full review list.
+                    </p>
+                    <a
+                        class="btn btn-primary review-link"
+                        href="#booking"
+                        data-yelp-link
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        >Read More on Yelp</a
+                    >
+                </div>
 
-                    <div class="testimonial">
+                <div
+                    class="review-strip"
+                    aria-label="Yelp review highlights rated 4 stars and above"
+                >
+                    <article class="review-card">
                         <div class="stars">★★★★★</div>
-                        <blockquote>
-                            "We hired Frannie for our company picnic and she was
-                            a huge hit with kids and adults alike. Professional
-                            and so talented."
-                        </blockquote>
-                        <cite>— Tom R., Event Coordinator</cite>
-                    </div>
+                        <h3>Kind before the booking</h3>
+                        <p>
+                            Araceli C. said her inquiry experience was
+                            "wonderful" even though her family ultimately
+                            handled the event themselves.
+                        </p>
+                        <cite>Araceli C. &middot; Oct. 3 &middot; Yelp</cite>
+                    </article>
 
-                    <div class="testimonial">
+                    <article class="review-card">
                         <div class="stars">★★★★★</div>
-                        <blockquote>
-                            "The balloon animals alone were worth it. Our
-                            library reading event had record attendance and the
-                            kids are already asking when Frannie comes back."
-                        </blockquote>
-                        <cite>— Linda K., Librarian</cite>
-                    </div>
+                        <h3>Birthday party favorite</h3>
+                        <p>
+                            Mary E. praised a kids birthday party with
+                            "face painting was gorgeous," quick work, balloon
+                            animals, and jokes adults enjoyed.
+                        </p>
+                        <cite>Mary E. &middot; Aug. 16 &middot; Yelp</cite>
+                    </article>
+
+                    <article class="review-card">
+                        <div class="stars">★★★★★</div>
+                        <h3>Fun for every age</h3>
+                        <p>
+                            Brad H. called Frannie "absolutely terrific" after
+                            a princess party where both children and adults had
+                            fun.
+                        </p>
+                        <cite>Brad H. &middot; Oct. 7 &middot; Yelp</cite>
+                    </article>
+
+                    <article class="review-card">
+                        <div class="stars">★★★★★</div>
+                        <h3>Classic clown magic</h3>
+                        <p>
+                            Katy'sgirl F. highlighted face painting, balloons,
+                            bubbles, and Frannie's real clown look: "This is
+                            the clown to call."
+                        </p>
+                        <cite>Katy'sgirl F. &middot; Feb. 17 &middot; Yelp</cite>
+                    </article>
+
+                    <article class="review-card">
+                        <div class="stars">★★★★★</div>
+                        <h3>Business and family events</h3>
+                        <p>
+                            Carlos D. called Frannie "Phenomenal" and described
+                            her as a hit with kids and adults at an event.
+                        </p>
+                        <cite>Carlos D. &middot; Aug. 6 &middot; Yelp</cite>
+                    </article>
                 </div>
 
                 <div class="customer-carousel" aria-label="Happy customer photos">
@@ -668,10 +758,11 @@
             <div class="divider"></div>
 
             <div class="gallery-grid">
+
                 <img
                     class="gallery-item"
-                    src="assets/frannie-veteran.jpg"
-                    alt="Frannie Veteran's Day"
+                    src="assets/frannie-paint.jpeg"
+                    alt="Frannie the Clown with her paint"
                 />
 
                 <img
@@ -688,8 +779,8 @@
 
                 <img
                     class="gallery-item"
-                    src="assets/frannie-paint.jpeg"
-                    alt="Frannie the Clown with her paint"
+                    src="assets/frannie-veteran.jpg"
+                    alt="Frannie Veteran's Day"
                 />
 
                 <img
@@ -770,6 +861,8 @@
                 <a href="#booking" data-email-link>Email</a>
                 &nbsp;·&nbsp;
                 <a href="#booking" data-phone-link>Phone</a>
+                &nbsp;·&nbsp;
+                <a href="about.html">About Frannie</a>
             </p>
             <p style="margin-top: 1.5rem; font-size: 0.8rem; opacity: 0.45">
                 © 2026 Frannie the Clown. All rights reserved.
@@ -827,25 +920,30 @@
                 if (config.CONTACT_PHONE_TEL) {
                     document.querySelectorAll("[data-phone-link]").forEach(
                         (link) => {
+                            const phoneDisplay =
+                                config.CONTACT_PHONE_DISPLAY ||
+                                config.CONTACT_PHONE_TEL;
+
                             link.href = `tel:${config.CONTACT_PHONE_TEL}`;
 
-                            if (link.dataset.phoneFormat === "button") {
-                                link.textContent = `Call Frannie: ${
-                                    config.CONTACT_PHONE_DISPLAY ||
-                                    config.CONTACT_PHONE_TEL
-                                }`;
-                                link.setAttribute(
-                                    "aria-label",
-                                    `Call Frannie at ${
-                                        config.CONTACT_PHONE_DISPLAY ||
-                                        config.CONTACT_PHONE_TEL
-                                    }`,
-                                );
+                            if (link.dataset.phoneFormat === "hero") {
+                                link.textContent = `Call Frannie to Book: ${phoneDisplay}`;
+                            } else if (link.dataset.phoneFormat === "nav") {
+                                link.textContent = `Call ${phoneDisplay}`;
+                            } else if (
+                                link.dataset.phoneFormat === "booking"
+                            ) {
+                                link.textContent = `Call or text ${phoneDisplay}`;
+                            } else if (link.dataset.phoneFormat === "button") {
+                                link.textContent = `Call Frannie: ${phoneDisplay}`;
                             } else {
-                                link.textContent =
-                                    config.CONTACT_PHONE_DISPLAY ||
-                                    config.CONTACT_PHONE_TEL;
+                                link.textContent = phoneDisplay;
                             }
+
+                            link.setAttribute(
+                                "aria-label",
+                                `Call Frannie at ${phoneDisplay}`,
+                            );
                         },
                     );
                 }
@@ -1014,12 +1112,23 @@
                         return false;
                     }
 
-                    if (!loadedMonths.has(selectedMonth)) {
+                    if (
+                        !loadedMonths.has(selectedMonth) &&
+                        !failedMonths.has(selectedMonth)
+                    ) {
                         setMessage(
                             "Availability is still loading. Please try again in a moment or call Frannie.",
                             true,
                         );
                         return false;
+                    }
+
+                    if (failedMonths.has(selectedMonth)) {
+                        setMessage(
+                            "Frannie will confirm availability after reviewing your event request.",
+                            false,
+                        );
+                        return true;
                     }
 
                     setMessage("", false);
@@ -1150,8 +1259,7 @@
                         button.type = "button";
                         button.className = "date-picker-day";
                         button.textContent = String(day);
-                        button.disabled =
-                            isPast || isBooked || isUnavailable;
+                        button.disabled = isPast || isBooked;
                         button.dataset.date = value;
 
                         if (dateInput.value === value) {
@@ -1167,7 +1275,7 @@
                                 `${formatSelectedLabel(value)} is already booked`,
                             );
                         } else if (isUnavailable) {
-                            button.classList.add("is-unavailable");
+                            button.classList.add("is-pending-availability");
                             button.title = "Availability is not loaded yet.";
                         } else {
                             button.setAttribute(

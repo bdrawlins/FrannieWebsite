@@ -59,9 +59,10 @@ first, then a confirmation email after the calendar block is created.
 
 Formspark webhooks send submitted form fields as a top-level JSON object, so the
 field names in `index.html` are the contract with Apps Script. Required fields
-are `name`, `email`, `date`, `event_time`, `duration`, and `location`. Optional
-fields currently used in emails are `phone`, `event_type`, `guests`, and
-`message`.
+are `name`, `email`, `date`, `event_time`, `duration`, and `location`; the
+visible form asks for event cross streets while keeping the `location` field name
+for webhook compatibility. Optional fields currently used in emails are `phone`,
+`event_type`, `guests`, and `message`.
 
 To avoid exposing customer PII on the embedded public calendar, calendar events
 use the generic title `Booked`, a broad San Diego location, and a short
@@ -88,6 +89,12 @@ make config
 the site is deployed because the browser needs them to render the form, links,
 and public calendar. Keeping them out of `index.html` still makes account swaps
 and testing much cleaner.
+
+## Content assets
+
+The About Frannie page has a video-first hero wired for a short clip at
+`assets/frannie-about-hero.mp4`. Until that file exists, the video element uses
+`assets/frannie-veteran.jpg` as its poster image.
 
 ## GitHub Pages deployment
 
@@ -132,6 +139,7 @@ BLOCKING_CALENDAR_IDS
 NOTIFY_EMAIL
 TIME_ZONE
 WEB_APP_URL
+MANUAL_BOOKING_KEY
 WEBHOOK_SECRET
 ```
 
@@ -144,7 +152,7 @@ The embedded website calendar and Apps Script `BOOKING_CALENDAR_ID` should point
 to the same dedicated public booking calendar. That keeps the public site limited
 to:
 
-- booking holds created through the form
+- booking holds created after Frannie approves a form request
 - bookings manually added by Frannie to the booking calendar
 
 The public iCal feed generated from that calendar ID is safe to share for
@@ -159,6 +167,8 @@ or description either way.
 If private calendars should block conflicts without appearing on the website,
 add those calendar IDs to `FRANNIE_APPS_SCRIPT_BLOCKING_CALENDAR_IDS` in `.env`
 and to `BLOCKING_CALENDAR_IDS` in Apps Script Script Properties.
+The website date picker still reads booked dates only from `BOOKING_CALENDAR_ID`,
+so private conflicts do not appear as gray dates on the public form.
 If the public booking calendar is the only calendar that should block requests,
 set `FRANNIE_APPS_SCRIPT_BLOCKING_CALENDAR_IDS` to the same value as
 `FRANNIE_APPS_SCRIPT_BOOKING_CALENDAR_ID`.
@@ -179,8 +189,8 @@ Setup:
 5. Paste in the contents of `google-calendar-booking.gs`.
 6. In Apps Script Project Settings, add Script Properties:
    `BOOKING_CALENDAR_ID`, `NOTIFY_EMAIL`, `TIME_ZONE`, optional
-   `BLOCKING_CALENDAR_IDS`, optional `WEB_APP_URL`, and optional
-   `WEBHOOK_SECRET`.
+   `BLOCKING_CALENDAR_IDS`, optional `WEB_APP_URL`, optional
+   `MANUAL_BOOKING_KEY`, and optional `WEBHOOK_SECRET`.
 7. Deploy the script as a Web App.
 8. Set "Execute as" to yourself.
 9. Set access to "Anyone".
@@ -223,6 +233,20 @@ https://script.google.com/macros/s/deployment-id/exec?booking_key=private-secret
 If `WEBHOOK_SECRET` is set in Apps Script, any webhook call without the matching
 `booking_key` query parameter is rejected before the booking request is stored
 or emailed for approval.
+
+Optional phone-booking helper:
+
+1. Set `MANUAL_BOOKING_KEY` as an Apps Script Script Property.
+2. Bookmark this private URL on Frannie's phone:
+
+```text
+https://script.google.com/macros/s/deployment-id/exec?action=manual&manual_key=private-secret
+```
+
+After a phone call, Frannie can open that URL, pick the booking date, choose an
+optional event type, and mark the date as `Booked` on the public booking
+calendar. The helper deliberately does not store customer name, phone number,
+location, or message on the public calendar.
 
 After setup, submit a test booking. Frannie should receive an email with confirm
 and decline links. The calendar should stay unchanged until the confirm link is
