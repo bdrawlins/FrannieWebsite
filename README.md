@@ -186,12 +186,16 @@ NOTIFY_EMAIL
 TIME_ZONE
 WEB_APP_URL
 MANUAL_BOOKING_KEY
+PRIVATE_BOOKING_DETAILS_CALENDAR_ID
 WEBHOOK_SECRET
 ```
 
 Script Properties are runtime configuration. Changing them does not require a
 new Apps Script deployment version. Editing `google-calendar-booking.gs` does
 require a new deployment version or updating the existing deployment.
+
+`PRIVATE_BOOKING_DETAILS_CALENDAR_ID` is optional. Leave it unset unless Frannie
+has a separate private calendar for detailed customer information.
 
 ## Booking Flow
 
@@ -249,6 +253,11 @@ The public calendar event is privacy-light:
 Customer name, phone, exact address, and message stay in Formspark and approval
 emails. They should not be written to the public calendar.
 
+Phone bookings follow the same public-calendar rule: the website calendar gets a
+privacy-light all-day `Booked` block. The private call details are emailed to
+Frannie. If `PRIVATE_BOOKING_DETAILS_CALENDAR_ID` is configured later, the same
+helper can also create a detailed private timed event.
+
 If private calendars should block conflicts without appearing on the public
 site, add those IDs to Apps Script `BLOCKING_CALENDAR_IDS`. The website date
 picker still reads public booked dates only from `BOOKING_CALENDAR_ID`, so
@@ -274,7 +283,8 @@ For public sharing:
 7. Add Apps Script Properties:
    `BOOKING_CALENDAR_ID`, `NOTIFY_EMAIL`, `TIME_ZONE`, optional
    `BLOCKING_CALENDAR_IDS`, optional `WEB_APP_URL`, optional
-   `MANUAL_BOOKING_KEY`, and optional `WEBHOOK_SECRET`.
+   `MANUAL_BOOKING_KEY`, optional `PRIVATE_BOOKING_DETAILS_CALENDAR_ID`, and
+   optional `WEBHOOK_SECRET`.
 8. Deploy the script as a Web App.
 9. Set "Execute as" to yourself.
 10. Set access to "Anyone".
@@ -288,6 +298,35 @@ For public sharing:
 
 After any `.gs` code edit, update the deployed Apps Script version. Saving the
 file in the Apps Script editor is not enough to update the live `/exec` URL.
+
+## Apps Script Refresh Checklist
+
+Use this checklist after changing `google-calendar-booking.gs`.
+
+1. Open the Apps Script project while signed in as the calendar owner.
+2. Paste the full contents of `google-calendar-booking.gs` into the editor.
+3. Save the file.
+4. In Project Settings, confirm these Script Properties exist:
+   `BOOKING_CALENDAR_ID`, `NOTIFY_EMAIL`, `TIME_ZONE`, `WEB_APP_URL`, and any
+   optional values in use.
+5. Set `MANUAL_BOOKING_KEY` if Frannie will use the private phone-booking form.
+6. Leave `PRIVATE_BOOKING_DETAILS_CALENDAR_ID` unset unless a private details
+   calendar exists and the Apps Script account can write to it.
+7. Deploy a new Web App version, or edit the existing Web App deployment and
+   select a new version.
+8. Keep "Execute as" set to yourself and access set to "Anyone".
+9. Copy the deployed `/exec` URL.
+10. Update Apps Script `WEB_APP_URL` to that same `/exec` URL.
+11. Update `FRANNIE_APPS_SCRIPT_WEB_APP_URL` in GitHub repository variables if
+    the deployment URL changed.
+12. Confirm Formspark's webhook still points to the current `/exec` URL, with
+    `?booking_key=...` if `WEBHOOK_SECRET` is enabled.
+13. Open the `/exec` URL in a private browser window. It should say the booking
+    webhook is live.
+14. In the Apps Script editor, run `testCalendarWrite`, then delete the test
+    event from Google Calendar.
+15. Open the private phone helper URL and create a test booking on a future
+    date, then delete the test `Booked` event after confirming the flow.
 
 ## Spam and Quota Protection
 
@@ -336,11 +375,15 @@ https://script.google.com/macros/s/deployment-id/exec?action=manual&manual_key=p
 ```
 
 Frannie can open that URL after a phone call, pick a booking date, choose an
-optional event type, and mark the date as `Booked` on the public booking
-calendar.
+event time, duration, event type, guest count, customer contact details, cross
+streets, and call notes. Submitting the form marks the date as `Booked` on the
+public booking calendar and emails Frannie a formatted summary.
 
 The helper deliberately does not store customer name, phone number, exact
-location, or message on the public calendar.
+location, or message on the public calendar. If
+`PRIVATE_BOOKING_DETAILS_CALENDAR_ID` is unset, the formatted email summary is
+the private record. If that property is set later, the helper also creates a
+private timed event with the customer details.
 
 ## Verification
 

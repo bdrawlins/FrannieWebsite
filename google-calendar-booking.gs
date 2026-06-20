@@ -1,6 +1,7 @@
 // Configure these values in Apps Script Project Settings > Script Properties.
 // Required: BOOKING_CALENDAR_ID, NOTIFY_EMAIL.
-// Optional: BLOCKING_CALENDAR_IDS, TIME_ZONE, WEBHOOK_SECRET, WEB_APP_URL.
+// Optional: BLOCKING_CALENDAR_IDS, TIME_ZONE, WEBHOOK_SECRET, WEB_APP_URL,
+// MANUAL_BOOKING_KEY, PRIVATE_BOOKING_DETAILS_CALENDAR_ID.
 const DEFAULT_TIME_ZONE = "America/Los_Angeles";
 const PENDING_BOOKING_PREFIX = "PENDING_BOOKING_";
 const PENDING_BOOKING_TTL_DAYS = 45;
@@ -36,6 +37,14 @@ function doGet(e) {
 
 function doPost(e) {
   try {
+    const params = normalizeSubmission(
+      Object.assign({}, e && e.parameter ? e.parameter : {})
+    );
+
+    if (params.action === "add_manual") {
+      return handleManualBookingCreate(params);
+    }
+
     return handleBookingPost(e);
   } catch (error) {
     const notifyEmail = getOptionalScriptProperty("NOTIFY_EMAIL");
@@ -284,6 +293,7 @@ function handleManualBookingForm(params) {
 
 function handleManualBookingCreate(params) {
   const config = getBookingConfig();
+  params = normalizeSubmission(params || {});
 
   if (!isAuthorizedManualBooking(params, config)) {
     return renderResult(
@@ -293,11 +303,32 @@ function handleManualBookingCreate(params) {
   }
 
   const bookingDay = parseDateOnly(params.date);
+  const start = buildDate(params.date, params.event_time);
+  const durationMinutes = Number(params.duration);
+  const end = new Date(start.getTime() + durationMinutes * 60 * 1000);
 
   if (!bookingDay || bookingDay < startOfDay(new Date())) {
     return renderResult(
       "Invalid date",
       "Please choose today or a future date for the phone booking hold."
+    );
+  }
+
+  if (
+    !isValidDate(start) ||
+    Number.isNaN(durationMinutes) ||
+    durationMinutes <= 0
+  ) {
+    return renderResult(
+      "Invalid time",
+      "Please choose a valid start time and duration for the phone booking."
+    );
+  }
+
+  if (start.getTime() < Date.now()) {
+    return renderResult(
+      "Invalid time",
+      "Please choose a future date and start time for the phone booking."
     );
   }
 
@@ -315,11 +346,21 @@ function handleManualBookingCreate(params) {
   }
 
   const bookingCalendar = CalendarApp.getCalendarById(config.bookingCalendarId);
+  const detailsCalendar = config.privateBookingDetailsCalendarId
+    ? CalendarApp.getCalendarById(config.privateBookingDetailsCalendarId)
+    : null;
 
   if (!bookingCalendar) {
     return renderResult(
       "Calendar unavailable",
       "Frannie's calendar could not be reached. Please check the calendar ID and try again."
+    );
+  }
+
+  if (config.privateBookingDetailsCalendarId && !detailsCalendar) {
+    return renderResult(
+      "Private calendar unavailable",
+      "The private booking details calendar could not be reached. No public booked block was created."
     );
   }
 
@@ -329,16 +370,17 @@ function handleManualBookingCreate(params) {
   });
   event.setColor(CalendarApp.EventColor.GRAY);
 
+  const detailsEvent = detailsCalendar
+    ? detailsCalendar.createEvent(manualBookingPrivateTitle(params), start, end, {
+        location: params.location || "San Diego, CA",
+        description: manualBookingPrivateDescription(params, event.getId(), config),
+      })
+    : null;
+
   MailApp.sendEmail({
     to: config.notifyEmail,
     subject: "Phone booking date marked booked",
-    body:
-      "A phone booking hold was added to the public booking calendar.\n\nDate: " +
-      formatDateOnly(bookingDay, config.timeZone) +
-      "\nEvent type: " +
-      (params.event_type || "Not provided") +
-      "\nCalendar event ID: " +
-      event.getId(),
+    body: manualBookingEmailBody(params, start, end, config, event, detailsEvent),
   });
 
   return renderResult(
@@ -407,6 +449,9 @@ function getBookingConfig() {
     timeZone: getOptionalScriptProperty("TIME_ZONE") || DEFAULT_TIME_ZONE,
     webhookSecret: getOptionalScriptProperty("WEBHOOK_SECRET"),
     manualBookingKey: getOptionalScriptProperty("MANUAL_BOOKING_KEY"),
+    privateBookingDetailsCalendarId: getOptionalScriptProperty(
+      "PRIVATE_BOOKING_DETAILS_CALENDAR_ID"
+    ),
     webAppUrl: getOptionalScriptProperty("WEB_APP_URL"),
   };
 }
@@ -734,8 +779,95 @@ function manualBookingDescription(params) {
     "Status: Booked",
     "Added: " + new Date().toISOString(),
     "Event type: " + (params.event_type || "Not provided"),
+    "Guest count: " + (params.guests || "Not provided"),
     "Customer details are kept outside the public calendar.",
   ].join("\n");
+}
+
+function manualBookingPrivateTitle(params) {
+  return "Phone booking: " + eventTitle(params);
+}
+
+function manualBookingPrivateDescription(params, publicEventId, config) {
+  return [
+    "Phone booking details",
+    "Public booked event ID: " + publicEventId,
+    "Added: " + new Date().toISOString(),
+    "",
+    "Customer:",
+    "Name: " + (params.name || "Not provided"),
+    "Email: " + (params.email || "Not provided"),
+    "Phone: " + (params.phone || "Not provided"),
+    "",
+    "Event:",
+    "Date: " + formatDateOnly(parseDateOnly(params.date), config.timeZone),
+    "Start time: " + (params.event_time || "Not provided"),
+    "Duration: " + formatDuration(params.duration),
+    "Event type: " + (params.event_type || "Not provided"),
+    "Guest count: " + (params.guests || "Not provided"),
+    "Cross streets: " + (params.location || "Not provided"),
+    "",
+    "Notes:",
+    params.message || "Not provided",
+  ].join("\n");
+}
+
+function manualBookingEmailBody(
+  params,
+  start,
+  end,
+  config,
+  publicEvent,
+  detailsEvent
+) {
+  const when =
+    Utilities.formatDate(start, config.timeZone, "EEEE, MMMM d, yyyy h:mm a") +
+    " - " +
+    Utilities.formatDate(end, config.timeZone, "h:mm a");
+  const detailsCalendarLine = detailsEvent
+    ? "\nPrivate details event ID: " + detailsEvent.getId()
+    : "\nPrivate details event: Not configured";
+
+  return (
+    "A phone booking was added.\n\n" +
+    "Public website calendar: all-day Booked block created\n" +
+    "Public event ID: " +
+    publicEvent.getId() +
+    detailsCalendarLine +
+    "\n\n" +
+    "When: " +
+    when +
+    "\nDuration: " +
+    formatDuration(params.duration) +
+    "\nEvent type: " +
+    (params.event_type || "Not provided") +
+    "\nGuest count: " +
+    (params.guests || "Not provided") +
+    "\nCross streets: " +
+    (params.location || "Not provided") +
+    "\n\nCustomer:\nName: " +
+    (params.name || "Not provided") +
+    "\nEmail: " +
+    (params.email || "Not provided") +
+    "\nPhone: " +
+    (params.phone || "Not provided") +
+    "\n\nNotes:\n" +
+    (params.message || "Not provided")
+  );
+}
+
+function formatDuration(value) {
+  const minutes = Number(value);
+
+  if (Number.isNaN(minutes) || minutes <= 0) {
+    return "Not provided";
+  }
+
+  if (minutes % 60 === 0) {
+    return minutes / 60 + " hour" + (minutes === 60 ? "" : "s");
+  }
+
+  return minutes / 60 + " hours";
 }
 
 function submissionSummary(pending, config) {
@@ -898,37 +1030,67 @@ function renderManualBookingForm(config, manualKey) {
     "<title>Add Phone Booking</title>" +
     "<style>" +
     "body{font-family:Arial,sans-serif;background:#fdf8f0;color:#1a2240;margin:0;padding:1.25rem;line-height:1.5}" +
-    "main{max-width:560px;margin:6vh auto;background:white;border:3px solid #1a2240;border-radius:14px;box-shadow:4px 4px 0 #1a2240;padding:1.5rem}" +
+    "main{max-width:720px;margin:4vh auto;background:white;border:3px solid #1a2240;border-radius:14px;box-shadow:4px 4px 0 #1a2240;padding:1.5rem}" +
     "h1{margin-top:0;color:#1a2240}" +
+    ".grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}" +
+    ".full{grid-column:1/-1}" +
     "label{display:block;font-weight:700;margin:.9rem 0 .35rem}" +
-    "input,select,button{width:100%;min-height:46px;border:2px solid #1a2240;border-radius:8px;font:inherit;padding:.65rem}" +
+    "input,select,textarea,button{width:100%;min-height:46px;border:2px solid #1a2240;border-radius:8px;font:inherit;padding:.65rem}" +
+    "textarea{min-height:120px;resize:vertical}" +
     "button{margin-top:1rem;background:#f9c846;color:#1a2240;font-weight:700;cursor:pointer;box-shadow:3px 3px 0 #1a2240}" +
     "p{color:rgba(26,34,64,.72)}" +
+    "@media(max-width:640px){.grid{grid-template-columns:1fr}}" +
     "</style>" +
     "</head>" +
     "<body><main>" +
     "<h1>Add Phone Booking</h1>" +
-    "<p>Use this after a phone call to block one date on the public booking calendar. Do not enter customer details here.</p>" +
-    '<form method="get" action="' +
+    "<p>Use this after a phone call. It creates a public all-day Booked block for the website calendar and emails Frannie the call details.</p>" +
+    '<form method="post" action="' +
     escapeHtml(actionUrl) +
     '">' +
     '<input type="hidden" name="action" value="add_manual">' +
     '<input type="hidden" name="manual_key" value="' +
     escapeHtml(manualKey) +
     '">' +
+    '<div class="grid">' +
     '<label for="date">Booking date</label>' +
     '<input id="date" name="date" type="date" min="' +
     escapeHtml(today) +
     '" required>' +
+    '<label for="event_time">Start time</label>' +
+    '<input id="event_time" name="event_time" type="time" step="900" required>' +
+    '<label for="duration">Duration</label>' +
+    '<select id="duration" name="duration" required>' +
+    '<option value="120" selected>2 hours</option>' +
+    '<option value="150">2.5 hours</option>' +
+    '<option value="180">3 hours</option>' +
+    '<option value="210">3.5 hours</option>' +
+    '<option value="240">4 hours</option>' +
+    '<option value="270">4.5 hours</option>' +
+    '<option value="300">5 hours</option>' +
+    "</select>" +
     '<label for="event_type">Event type</label>' +
     '<select id="event_type" name="event_type">' +
     '<option value="">Not provided</option>' +
     "<option>Birthday Party</option>" +
-    "<option>Corporate Event</option>" +
-    "<option>School / Library Show</option>" +
+    "<option>Holiday Event</option>" +
+    "<option>Team Celebration</option>" +
     "<option>Festival / Fair</option>" +
     "<option>Other</option>" +
     "</select>" +
+    '<label for="name">Customer name</label>' +
+    '<input id="name" name="name" type="text" autocomplete="name">' +
+    '<label for="phone">Phone</label>' +
+    '<input id="phone" name="phone" type="tel" autocomplete="tel">' +
+    '<label for="email">Email</label>' +
+    '<input id="email" name="email" type="email" autocomplete="email">' +
+    '<label for="guests">Approximate guest count</label>' +
+    '<input id="guests" name="guests" type="number" min="1">' +
+    '<label class="full" for="location">Event cross streets</label>' +
+    '<input class="full" id="location" name="location" type="text" placeholder="e.g. Adams Ave & 30th St">' +
+    '<label class="full" for="message">Call notes</label>' +
+    '<textarea class="full" id="message" name="message" placeholder="Package, quote, special requests, parking, costume notes, follow-up needed"></textarea>' +
+    "</div>" +
     "<button type=\"submit\">Mark Date Booked</button>" +
     "</form>" +
     "</main></body></html>";
