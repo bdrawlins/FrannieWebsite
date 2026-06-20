@@ -291,7 +291,9 @@ For public sharing:
 8. Deploy the script as a Web App.
 9. Set "Execute as" to yourself.
 10. Set access to "Anyone".
-11. Copy the Web App `/exec` URL.
+11. Copy the Web App `/exec` URL. Use the public
+    `https://script.google.com/macros/s/.../exec` form, not a browser URL with
+    `/macros/u/1/s/.../exec`.
 12. Save that URL as `FRANNIE_APPS_SCRIPT_WEB_APP_URL` in `.env` and in GitHub
     repository variables.
 13. In Formspark, set the Webhook URL to the Apps Script `/exec` URL.
@@ -318,7 +320,9 @@ Use this checklist after changing `google-calendar-booking.gs`.
 7. Deploy a new Web App version, or edit the existing Web App deployment and
    select a new version.
 8. Keep "Execute as" set to yourself and access set to "Anyone".
-9. Copy the deployed `/exec` URL.
+9. Copy the deployed `/exec` URL. Use the public
+   `https://script.google.com/macros/s/.../exec` form, not a browser URL with
+   `/macros/u/1/s/.../exec`.
 10. Update Apps Script `WEB_APP_URL` to that same `/exec` URL.
 11. Update `FRANNIE_APPS_SCRIPT_WEB_APP_URL` in GitHub repository variables if
     the deployment URL changed.

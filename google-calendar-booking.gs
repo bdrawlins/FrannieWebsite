@@ -491,7 +491,7 @@ function getBookingConfig() {
     privateBookingDetailsCalendarId: getOptionalScriptProperty(
       "PRIVATE_BOOKING_DETAILS_CALENDAR_ID"
     ),
-    webAppUrl: getOptionalScriptProperty("WEB_APP_URL"),
+    webAppUrl: normalizeWebAppUrl(getOptionalScriptProperty("WEB_APP_URL")),
   };
 }
 
@@ -520,6 +520,12 @@ function getCsvScriptProperty(name) {
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function normalizeWebAppUrl(value) {
+  return String(value || "")
+    .trim()
+    .replace(/\/macros\/u\/\d+\/s\//, "/macros/s/");
 }
 
 function isAuthorizedWebhook(e, config) {
