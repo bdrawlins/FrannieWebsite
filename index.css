@@ -414,10 +414,6 @@ h2 {
     background: var(--white);
 }
 
-.calendar-mobile {
-    display: none;
-}
-
 .calendar-note {
     margin-top: 1rem;
     max-width: 720px;
@@ -1572,14 +1568,6 @@ footer a:hover {
 
     .booking-form {
         padding: 1rem;
-    }
-
-    .calendar-desktop {
-        display: none;
-    }
-
-    .calendar-mobile {
-        display: block;
     }
 
     .calendar-wrap iframe {
