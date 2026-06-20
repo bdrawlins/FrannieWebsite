@@ -224,6 +224,9 @@ location
 The visible form asks for event cross streets while keeping the field name
 `location` for webhook compatibility.
 
+Apps Script enforces a minimum `duration` of 120 minutes even if a malformed
+payload bypasses the browser form.
+
 Optional fields currently used in emails:
 
 ```text
@@ -323,8 +326,9 @@ Use this checklist after changing `google-calendar-booking.gs`.
     `?booking_key=...` if `WEBHOOK_SECRET` is enabled.
 13. Open the `/exec` URL in a private browser window. It should say the booking
     webhook is live.
-14. In the Apps Script editor, run `testCalendarWrite`, then delete the test
-    event from Google Calendar.
+14. In the Apps Script editor, run `testCalendarWrite`. It should create a
+    yellow all-day test event on today's date in `TIME_ZONE`; delete that test
+    event from Google Calendar after confirming write access.
 15. Open the private phone helper URL and create a test booking on a future
     date, then delete the test `Booked` event after confirming the flow.
 
@@ -398,7 +402,8 @@ Expected behavior:
 5. A second booking request for the same date is rejected as already booked.
 
 Run `testCalendarWrite` from the Apps Script editor to verify calendar write
-permission. Delete the test event afterwards.
+permission. It creates a yellow all-day test event on today's date in
+`TIME_ZONE`; delete the test event afterwards.
 
 ## Common Changes
 

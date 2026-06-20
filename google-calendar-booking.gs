@@ -5,6 +5,7 @@
 const DEFAULT_TIME_ZONE = "America/Los_Angeles";
 const PENDING_BOOKING_PREFIX = "PENDING_BOOKING_";
 const PENDING_BOOKING_TTL_DAYS = 45;
+const MIN_BOOKING_DURATION_MINUTES = 120;
 
 function doGet(e) {
   const params = e && e.parameter ? e.parameter : {};
@@ -66,24 +67,19 @@ function doPost(e) {
 
 function testCalendarWrite() {
   const config = getBookingConfig();
-  const start = new Date();
-  start.setDate(start.getDate() + 1);
-  start.setHours(9, 0, 0, 0);
-
-  const end = new Date(start.getTime() + 15 * 60 * 1000);
+  const bookingDay = todayInTimeZone(config.timeZone);
   const calendar = CalendarApp.getCalendarById(config.bookingCalendarId);
 
   if (!calendar) {
     throw new Error("Calendar not found: " + config.bookingCalendarId);
   }
 
-  const event = calendar.createEvent(
+  const event = calendar.createAllDayEvent(
     "TEST: Website booking calendar write",
-    start,
-    end,
+    bookingDay,
     {
       description:
-        "Delete this event after confirming the website booking calendar can be written by Apps Script.",
+        "Delete this all-day event after confirming the website booking calendar can be written by Apps Script.",
     }
   );
   event.setColor(CalendarApp.EventColor.YELLOW);
@@ -125,19 +121,19 @@ function handleBookingPost(e) {
   }
 
   const start = buildDate(params.date, params.event_time);
-  const durationMinutes = Number(params.duration);
-  const end = new Date(start.getTime() + durationMinutes * 60 * 1000);
+  const durationMinutes = parseDurationMinutes(params.duration);
 
   if (
     !isValidDate(start) ||
-    Number.isNaN(durationMinutes) ||
-    durationMinutes <= 0
+    Number.isNaN(durationMinutes)
   ) {
     return renderResult(
       "Invalid time",
-      "Please go back and choose a valid event date, start time, and duration."
+      "Please go back and choose a valid event date, start time, and a duration of at least 2 hours."
     );
   }
+
+  const end = addMinutes(start, durationMinutes);
 
   if (start.getTime() < Date.now()) {
     return renderResult(
@@ -211,36 +207,79 @@ function handleBookingConfirmation(token) {
       );
     }
 
-    const bookingDay = startOfDay(start);
+    const bookingDay = pendingBookingDay(pending, config);
+
+    if (!bookingDay) {
+      return renderResult(
+        "Invalid request",
+        "This saved booking request did not include a usable booking date. No calendar block was created."
+      );
+    }
+
     const conflicts = getConflicts(
       bookingDay,
-      startOfNextDay(start),
+      startOfNextDay(bookingDay),
       config.blockingCalendarIds
     );
 
     if (conflicts.length) {
       return renderResult(
         "Date already booked",
-        "The calendar has a conflict on this date. No public booked block was created."
+        "The calendar has " +
+          conflicts.length +
+          " conflict(s) on " +
+          formatDateOnly(bookingDay, config.timeZone) +
+          ". No public booked block was created."
       );
     }
 
     const params = pending.params;
-    const event = bookingCalendar.createAllDayEvent(
-      calendarEventTitle(params),
-      bookingDay,
-      {
-        location: "San Diego, CA",
-        description: calendarEventDescription(params, pending),
-      }
-    );
-    event.setColor(CalendarApp.EventColor.GRAY);
+    let event;
+
+    try {
+      event = bookingCalendar.createAllDayEvent(
+        calendarEventTitle(params),
+        bookingDay,
+        {
+          location: "San Diego, CA",
+          description: calendarEventDescription(params, pending),
+        }
+      );
+    } catch (error) {
+      MailApp.sendEmail({
+        to: config.notifyEmail,
+        replyTo: params.email,
+        subject: "Booking calendar write failed: " + eventTitle(params),
+        body:
+          submissionSummary(pending, config) +
+          "\n\nThe confirm link was clicked, but Apps Script could not create the Google Calendar block." +
+          "\nRequested booked date: " +
+          formatDateOnly(bookingDay, config.timeZone) +
+          "\n\nError:\n" +
+          (error && error.stack ? error.stack : String(error)),
+      });
+
+      return renderResult(
+        "Calendar write failed",
+        "The request is still pending, but Apps Script could not create the Google Calendar block. Frannie has been emailed the error."
+      );
+    }
+
+    try {
+      event.setColor(CalendarApp.EventColor.GRAY);
+    } catch (error) {
+      // The calendar block is the source of truth; color is only a visual hint.
+    }
+
     deletePendingBooking(token);
     sendConfirmedNotifications(pending, config, event.getId());
 
     return renderResult(
       "Date marked booked",
-      "This booking date is now marked as booked on Frannie's public calendar."
+      "This booking date is now marked as booked on Frannie's public calendar for " +
+        formatDateOnly(bookingDay, config.timeZone) +
+        ". Calendar event ID: " +
+        event.getId()
     );
   } finally {
     lock.releaseLock();
@@ -304,8 +343,7 @@ function handleManualBookingCreate(params) {
 
   const bookingDay = parseDateOnly(params.date);
   const start = buildDate(params.date, params.event_time);
-  const durationMinutes = Number(params.duration);
-  const end = new Date(start.getTime() + durationMinutes * 60 * 1000);
+  const durationMinutes = parseDurationMinutes(params.duration);
 
   if (!bookingDay || bookingDay < startOfDay(new Date())) {
     return renderResult(
@@ -316,14 +354,15 @@ function handleManualBookingCreate(params) {
 
   if (
     !isValidDate(start) ||
-    Number.isNaN(durationMinutes) ||
-    durationMinutes <= 0
+    Number.isNaN(durationMinutes)
   ) {
     return renderResult(
       "Invalid time",
-      "Please choose a valid start time and duration for the phone booking."
+      "Please choose a valid start time and a duration of at least 2 hours for the phone booking."
     );
   }
+
+  const end = addMinutes(start, durationMinutes);
 
   if (start.getTime() < Date.now()) {
     return renderResult(
@@ -618,6 +657,10 @@ function addDays(date, days) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
 }
 
+function addMinutes(date, minutes) {
+  return new Date(date.getTime() + minutes * 60 * 1000);
+}
+
 function parseDateOnly(value) {
   const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
 
@@ -633,6 +676,10 @@ function parseDateOnly(value) {
 
 function formatDateOnly(date, timeZone) {
   return Utilities.formatDate(date, timeZone, "yyyy-MM-dd");
+}
+
+function todayInTimeZone(timeZone) {
+  return parseDateOnly(formatDateOnly(new Date(), timeZone));
 }
 
 function buildDate(date, time) {
@@ -658,6 +705,19 @@ function buildDate(date, time) {
 
 function isValidDate(value) {
   return value instanceof Date && !Number.isNaN(value.getTime());
+}
+
+function parseDurationMinutes(value) {
+  const minutes = Number(value);
+
+  if (
+    Number.isNaN(minutes) ||
+    minutes < MIN_BOOKING_DURATION_MINUTES
+  ) {
+    return NaN;
+  }
+
+  return minutes;
 }
 
 function eventTitle(params) {
@@ -693,9 +753,12 @@ function storePendingBooking(params, start, end, conflictCount) {
 
 function storedPendingParams(params) {
   return {
+    date: params.date,
     email: params.email,
+    event_time: params.event_time,
     event_type: params.event_type,
     guests: params.guests,
+    duration: params.duration,
   };
 }
 
@@ -738,6 +801,16 @@ function cleanupOldPendingBookings() {
 
 function isValidToken(token) {
   return /^[A-Za-z0-9]{20,}$/.test(String(token || ""));
+}
+
+function pendingBookingDay(pending, config) {
+  const params = pending && pending.params ? pending.params : {};
+  const start = new Date(pending.startIso);
+
+  return (
+    parseDateOnly(params.date) ||
+    parseDateOnly(formatDateOnly(start, config.timeZone))
+  );
 }
 
 function eventDescription(params, pending) {
