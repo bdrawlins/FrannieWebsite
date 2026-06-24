@@ -15,6 +15,9 @@ check:
 	test -f index.html
 	test -f about.html
 	test -f index.css
+	test -f CNAME
+	test -f robots.txt
+	test -f sitemap.xml
 	test -f scripts/build_site_config.py
 	test -f google-calendar-booking.gs
 	test -f assets/favicon.svg

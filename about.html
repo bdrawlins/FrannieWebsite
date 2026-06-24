@@ -7,15 +7,46 @@
             name="description"
             content="Learn about Frannie the Clown, a longtime San Diego entertainer serving hospitals, military families, hometown heroes, parties, and family celebrations."
         />
-        <meta property="og:title" content="About Frannie the Clown" />
+        <link rel="canonical" href="https://frannietheclown.net/about.html" />
+        <meta
+            property="og:title"
+            content="About Frannie the Clown | San Diego Entertainer"
+        />
         <meta
             property="og:description"
             content="Several decades of joyful clown entertainment, face painting, balloon art, and community celebrations in San Diego."
         />
-        <meta property="og:image" content="assets/frannie-veteran.jpg" />
+        <meta
+            property="og:url"
+            content="https://frannietheclown.net/about.html"
+        />
+        <meta property="og:site_name" content="Frannie the Clown" />
+        <meta
+            property="og:image"
+            content="https://frannietheclown.net/assets/frannie-veteran.jpg"
+        />
+        <meta property="og:image:width" content="720" />
+        <meta property="og:image:height" content="720" />
+        <meta
+            property="og:image:alt"
+            content="Frannie the Clown in costume at a San Diego community event"
+        />
         <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+            name="twitter:title"
+            content="About Frannie the Clown | San Diego Entertainer"
+        />
+        <meta
+            name="twitter:description"
+            content="Several decades of joyful clown entertainment, face painting, balloon art, and community celebrations in San Diego."
+        />
+        <meta
+            name="twitter:image"
+            content="https://frannietheclown.net/assets/frannie-veteran.jpg"
+        />
         <meta name="theme-color" content="#1a2240" />
-        <title>About Frannie the Clown</title>
+        <title>About Frannie the Clown | San Diego Entertainer</title>
         <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -27,6 +58,50 @@
         />
 
         <link rel="stylesheet" href="index.css?v=20260603-3" />
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@graph": [
+                    {
+                        "@type": "WebPage",
+                        "@id": "https://frannietheclown.net/about.html#webpage",
+                        "url": "https://frannietheclown.net/about.html",
+                        "name": "About Frannie the Clown | San Diego Entertainer",
+                        "description": "Learn about Frannie the Clown, a longtime San Diego entertainer serving hospitals, military families, hometown heroes, parties, and family celebrations.",
+                        "isPartOf": {
+                            "@id": "https://frannietheclown.net/#website"
+                        },
+                        "about": {
+                            "@id": "https://frannietheclown.net/#business"
+                        },
+                        "primaryImageOfPage": {
+                            "@type": "ImageObject",
+                            "url": "https://frannietheclown.net/assets/frannie-veteran.jpg",
+                            "width": 720,
+                            "height": 720
+                        }
+                    },
+                    {
+                        "@type": "BreadcrumbList",
+                        "@id": "https://frannietheclown.net/about.html#breadcrumb",
+                        "itemListElement": [
+                            {
+                                "@type": "ListItem",
+                                "position": 1,
+                                "name": "Home",
+                                "item": "https://frannietheclown.net/"
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 2,
+                                "name": "About",
+                                "item": "https://frannietheclown.net/about.html"
+                            }
+                        ]
+                    }
+                ]
+            }
+        </script>
     </head>
     <body>
         <nav>
@@ -41,7 +116,7 @@
             <section class="about-hero">
                 <div class="about-hero-copy">
                     <p class="section-label">About Frannie</p>
-                    <h1>Smiles, Special moments, and SoCal fun!</h1>
+                    <h1>Smiles, special moments, and SoCal fun!</h1>
                     <p>
                         Frannie has spent decades bringing color, comedy, and
                         kind attention to anyone who could use a bright moment.
@@ -56,21 +131,17 @@
                     </div>
                 </div>
                 <div class="about-hero-media">
-                    <video
+                    <img
                         class="about-hero-video"
-                        controls
-                        playsinline
-                        preload="metadata"
-                        poster="assets/frannie-veteran.jpg"
-                        aria-label="Short introduction video for Frannie the Clown"
-                    >
-                        <source
-                            src="assets/frannie-about-hero.mp4"
-                            type="video/mp4"
-                        />
-                    </video>
+                        src="assets/frannie-veteran.jpg"
+                        alt="Frannie the Clown at a San Diego community event"
+                        width="720"
+                        height="720"
+                        fetchpriority="high"
+                        decoding="async"
+                    />
                     <p class="about-video-caption">
-                        A quick hello from Frannie before you head back to book.
+                        Frannie brings color, comedy, and kind attention to every event.
                     </p>
                 </div>
             </section>
@@ -122,14 +193,26 @@
                     <img
                         src="assets/frannie-firefighter.jpeg"
                         alt="Frannie the Clown with firefighters"
+                        width="1920"
+                        height="2560"
+                        loading="lazy"
+                        decoding="async"
                     />
                     <img
                         src="assets/frannie-police.jpg"
                         alt="Frannie the Clown with police officers"
+                        width="1848"
+                        height="1848"
+                        loading="lazy"
+                        decoding="async"
                     />
                     <img
                         src="assets/frannie-pilot.jpg"
                         alt="Frannie the Clown with Top Gun"
+                        width="1848"
+                        height="1848"
+                        loading="lazy"
+                        decoding="async"
                     />
                 </div>
             </section>

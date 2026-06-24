@@ -47,9 +47,11 @@ make stop-local
 
 - `index.html`: main page, booking form, calendar embed, Yelp review excerpts,
   gallery, and browser scripts.
-- `about.html`: standalone About Frannie page with a video-first hero.
+- `about.html`: standalone About Frannie page with an image-first hero.
 - `index.css`: shared styles for both pages.
-- `assets/`: images and the optional About page video.
+- `CNAME`, `robots.txt`, `sitemap.xml`: custom-domain and search discovery
+  files deployed at the site root.
+- `assets/`: images and favicon.
 - `scripts/build_site_config.py`: generates browser-facing `site-config.js`
   from environment variables.
 - `google-calendar-booking.gs`: Google Apps Script webhook and manual booking
@@ -73,14 +75,7 @@ load unavailable dates.
 
 ### About Page
 
-`about.html` stands alone and links back to the main page. Its hero is wired for
-a short video at:
-
-```text
-assets/frannie-about-hero.mp4
-```
-
-Until that video exists, the video element uses this poster image:
+`about.html` stands alone and links back to the main page. Its hero uses:
 
 ```text
 assets/frannie-veteran.jpg
@@ -116,13 +111,14 @@ Confirm:
 - review pan buttons work
 - long review text scrolls inside each card
 - gallery images remain square
-- About page video area is framed correctly
+- About page hero image is framed correctly
 
 ## Deployment
 
 The workflow in `.github/workflows/deploy-pages.yml` deploys the static site
 whenever `master` is pushed. It generates `site-config.js` from GitHub
-repository variables, then uploads the public site files.
+repository variables, then uploads the public site files, including the custom
+domain and search discovery files at the site root.
 
 GitHub Pages should be set to use GitHub Actions:
 
@@ -436,11 +432,10 @@ Update Yelp reviews:
 2. Keep excerpts manually curated.
 3. Do not expose a Yelp API key in browser code.
 
-Update the About video:
+Update the About hero image:
 
-1. Add `assets/frannie-about-hero.mp4`.
-2. Keep `assets/frannie-veteran.jpg` as the fallback poster unless replacing it
-   intentionally.
+1. Swap `assets/frannie-veteran.jpg`, or add a new image under `assets/`.
+2. Update the About page `<img>` dimensions if the image file changes.
 
 ## Troubleshooting
 
