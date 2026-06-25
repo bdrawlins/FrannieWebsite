@@ -54,6 +54,8 @@ make stop-local
 - `assets/`: images and favicon.
 - `scripts/build_site_config.py`: generates browser-facing `site-config.js`
   from environment variables.
+- `scripts/check_seo.py`: local crawl/metadata/schema smoke check used by
+  `make check`.
 - `google-calendar-booking.gs`: Google Apps Script webhook and manual booking
   helper.
 - `.github/workflows/deploy-pages.yml`: GitHub Pages deployment.
@@ -66,8 +68,8 @@ make stop-local
 ### Main Page
 
 Most public copy lives in `index.html`. The home page side navigation links to
-the main sections: Services, Availability, Book, Reviews, and Gallery. The top
-navigation keeps About as the standalone second page.
+the main sections: Services, Area, Availability, Book, FAQ, Reviews, and
+Gallery. The top navigation keeps About as the standalone second page.
 
 The public Google Calendar embed is intentionally a single monthly view. The
 booking date picker below it is separate from the embed and uses Apps Script to
@@ -112,6 +114,16 @@ Confirm:
 - long review text scrolls inside each card
 - gallery images remain square
 - About page hero image is framed correctly
+
+## SEO Preflight
+
+`make check` runs `scripts/check_seo.py` before the placeholder scan. It verifies:
+
+- canonical URLs, Open Graph URLs, and social image URLs
+- parseable JSON-LD on both public pages
+- `CNAME`, `robots.txt`, and `sitemap.xml`
+- sitemap URLs for the home and About pages
+- local asset references and internal anchor targets
 
 ## Deployment
 

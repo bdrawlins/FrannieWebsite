@@ -45,6 +45,12 @@
         <meta name="theme-color" content="#1a2240" />
         <title>Frannie the Clown | San Diego Party Entertainment</title>
         <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+        <link
+            rel="preload"
+            as="image"
+            href="assets/frannie.jpeg"
+            fetchpriority="high"
+        />
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -156,12 +162,63 @@
                             "width": 1181,
                             "height": 1687
                         }
+                    },
+                    {
+                        "@type": "FAQPage",
+                        "@id": "https://frannietheclown.net/#faq",
+                        "url": "https://frannietheclown.net/#faq",
+                        "isPartOf": {
+                            "@id": "https://frannietheclown.net/#webpage"
+                        },
+                        "mainEntity": [
+                            {
+                                "@type": "Question",
+                                "name": "What kinds of events does Frannie book?",
+                                "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "Frannie books birthday parties, school events, team celebrations, holiday parties, festivals, care settings, military and veteran gatherings, and family celebrations around San Diego."
+                                }
+                            },
+                            {
+                                "@type": "Question",
+                                "name": "What services can I request?",
+                                "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "Common requests include clown entertainment, games, balloon animals, balloon artistry, face painting, seasonal characters, and custom packages."
+                                }
+                            },
+                            {
+                                "@type": "Question",
+                                "name": "How long is a typical booking?",
+                                "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "Birthday party bookings have a 2 hour minimum, with longer 2.5 to 5 hour options available in the online request form."
+                                }
+                            },
+                            {
+                                "@type": "Question",
+                                "name": "How should I book the fastest?",
+                                "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "A phone call is the fastest way to book. You can also send the online request form with the date, cross streets, phone number, event type, and party details."
+                                }
+                            },
+                            {
+                                "@type": "Question",
+                                "name": "What happens if Frannie is unavailable?",
+                                "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "If Frannie is unavailable, she can help look for another entertainer in her network who can accommodate the event."
+                                }
+                            }
+                        ]
                     }
                 ]
             }
         </script>
     </head>
     <body class="home-page">
+        <a class="skip-link" href="#main-content">Skip to content</a>
         <!-- ── Nav ──────────────────────────────────────────── -->
         <nav>
             <a href="#hero" class="nav-logo">Frannie the Clown</a>
@@ -179,11 +236,15 @@
 
         <aside class="home-side-nav" aria-label="Home page sections">
             <a href="#services">Services</a>
+            <a href="#service-area">Area</a>
             <a href="#scheduling">Availability</a>
             <a href="#booking">Book</a>
+            <a href="#faq">FAQ</a>
             <a href="#testimonials">Reviews</a>
             <a href="#gallery">Gallery</a>
         </aside>
+
+        <main id="main-content">
 
         <!-- ── Hero ─────────────────────────────────────────── -->
         <div id="hero">
@@ -295,6 +356,29 @@
                         around your event. Contact me and we'll make something
                         special.
                     </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Service Area ─────────────────────────────────── -->
+        <section id="service-area">
+            <p class="section-label">Where I Work</p>
+            <h2>San Diego Parties, Schools, and Community Events</h2>
+            <div class="divider"></div>
+            <div class="service-area-content">
+                <p>
+                    Frannie books birthday parties, school events, team
+                    celebrations, holiday parties, festivals, care settings,
+                    military and veteran gatherings, and family celebrations
+                    around San Diego, CA and nearby communities.
+                </p>
+                <div class="service-area-tags" aria-label="Common event types">
+                    <span>Birthday parties</span>
+                    <span>School events</span>
+                    <span>Holiday parties</span>
+                    <span>Festivals</span>
+                    <span>Military &amp; veteran events</span>
+                    <span>Family celebrations</span>
                 </div>
             </div>
         </section>
@@ -666,6 +750,55 @@
             </div>
         </section>
 
+        <!-- ── FAQ ──────────────────────────────────────────── -->
+        <section id="faq">
+            <p class="section-label">Good to Know</p>
+            <h2>Booking Questions</h2>
+            <div class="divider"></div>
+            <div class="faq-grid">
+                <article class="faq-item">
+                    <h3>What kinds of events does Frannie book?</h3>
+                    <p>
+                        Birthday parties, school events, team celebrations,
+                        holiday parties, festivals, care settings, military and
+                        veteran gatherings, and family celebrations around San
+                        Diego.
+                    </p>
+                </article>
+                <article class="faq-item">
+                    <h3>What services can I request?</h3>
+                    <p>
+                        Common requests include clown entertainment, games,
+                        balloon animals, balloon artistry, face painting,
+                        seasonal characters, and custom packages.
+                    </p>
+                </article>
+                <article class="faq-item">
+                    <h3>How long is a typical booking?</h3>
+                    <p>
+                        Birthday party bookings have a 2 hour minimum, with
+                        longer 2.5 to 5 hour options available in the online
+                        request form.
+                    </p>
+                </article>
+                <article class="faq-item">
+                    <h3>How should I book the fastest?</h3>
+                    <p>
+                        A phone call is the fastest way to book. You can also
+                        send the online request form with the date, cross
+                        streets, phone number, event type, and party details.
+                    </p>
+                </article>
+                <article class="faq-item">
+                    <h3>What happens if Frannie is unavailable?</h3>
+                    <p>
+                        If Frannie is unavailable, she can help look for another
+                        entertainer in her network who can accommodate the event.
+                    </p>
+                </article>
+            </div>
+        </section>
+
         <!-- ── Testimonials ──────────────────────────────────── -->
         <div id="testimonials">
             <div class="inner">
@@ -1033,6 +1166,8 @@
                 />
             </div>
         </section>
+
+        </main>
 
         <div
             class="gallery-lightbox"

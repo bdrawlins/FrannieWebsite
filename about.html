@@ -48,6 +48,12 @@
         <meta name="theme-color" content="#1a2240" />
         <title>About Frannie the Clown | San Diego Entertainer</title>
         <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+        <link
+            rel="preload"
+            as="image"
+            href="assets/frannie-veteran.jpg"
+            fetchpriority="high"
+        />
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -63,6 +69,43 @@
                 "@context": "https://schema.org",
                 "@graph": [
                     {
+                        "@type": "WebSite",
+                        "@id": "https://frannietheclown.net/#website",
+                        "name": "Frannie the Clown",
+                        "url": "https://frannietheclown.net/"
+                    },
+                    {
+                        "@type": "EntertainmentBusiness",
+                        "@id": "https://frannietheclown.net/#business",
+                        "name": "Frannie the Clown",
+                        "url": "https://frannietheclown.net/",
+                        "description": "San Diego clown entertainment for birthday parties, school shows, team events, balloon artistry, face painting, and family celebrations.",
+                        "image": "https://frannietheclown.net/assets/frannie-veteran.jpg",
+                        "telephone": "+16199337737",
+                        "email": "frannietheclown1@gmail.com",
+                        "priceRange": "Contact for booking rates",
+                        "address": {
+                            "@type": "PostalAddress",
+                            "addressLocality": "San Diego",
+                            "addressRegion": "CA",
+                            "addressCountry": "US"
+                        },
+                        "areaServed": [
+                            {
+                                "@type": "City",
+                                "name": "San Diego"
+                            },
+                            {
+                                "@type": "AdministrativeArea",
+                                "name": "San Diego County"
+                            }
+                        ],
+                        "sameAs": [
+                            "https://www.facebook.com/p/Frannie-the-Clown-100076459472472/",
+                            "https://www.yelp.com/biz/frannie-the-clown-san-diego"
+                        ]
+                    },
+                    {
                         "@type": "WebPage",
                         "@id": "https://frannietheclown.net/about.html#webpage",
                         "url": "https://frannietheclown.net/about.html",
@@ -73,6 +116,9 @@
                         },
                         "about": {
                             "@id": "https://frannietheclown.net/#business"
+                        },
+                        "breadcrumb": {
+                            "@id": "https://frannietheclown.net/about.html#breadcrumb"
                         },
                         "primaryImageOfPage": {
                             "@type": "ImageObject",
@@ -104,6 +150,7 @@
         </script>
     </head>
     <body>
+        <a class="skip-link" href="#main-content">Skip to content</a>
         <nav>
             <a href="index.html#hero" class="nav-logo">Frannie the Clown</a>
             <ul class="nav-links">
@@ -112,7 +159,7 @@
             <a class="nav-call" href="index.html#hero">Back Home</a>
         </nav>
 
-        <main class="about-page">
+        <main id="main-content" class="about-page">
             <section class="about-hero">
                 <div class="about-hero-copy">
                     <p class="section-label">About Frannie</p>
@@ -132,7 +179,7 @@
                 </div>
                 <div class="about-hero-media">
                     <img
-                        class="about-hero-video"
+                        class="about-hero-image"
                         src="assets/frannie-veteran.jpg"
                         alt="Frannie the Clown at a San Diego community event"
                         width="720"
@@ -140,7 +187,7 @@
                         fetchpriority="high"
                         decoding="async"
                     />
-                    <p class="about-video-caption">
+                    <p class="about-image-caption">
                         Frannie brings color, comedy, and kind attention to every event.
                     </p>
                 </div>

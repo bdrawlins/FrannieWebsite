@@ -31,6 +31,7 @@ check:
 	test -f assets/happycustomer3.jpeg
 	test -f assets/happycustomer4.jpg
 	test -f assets/happycustomer5.jpeg
+	python3 scripts/check_seo.py
 	@if rg -n "Photo Coming Soon|Goes Here|Replace|YOUR_|href=\"#\"|frannie@example|123-4567|2025|TODO" index.html about.html index.css README.md; then \
 		echo "Placeholder-like text found"; \
 		exit 1; \
